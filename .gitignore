@@ -1,0 +1,12 @@
+# Qwen agent cache
+.qwen/
+
+# macOS
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Temp files
+tmp/
+temp/
