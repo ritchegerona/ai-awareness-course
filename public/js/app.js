@@ -38,6 +38,8 @@
     }
   };
   const ACTIVE_COURSE = COURSE_CATALOG.v1;
+  const THEME_KEY = 'aiCourseTheme';
+  const ADMIN_KEY = 'aiCourseAdminRoster_v1';
 
   const defaultState = () => ({
     currentModule: 0,
@@ -46,7 +48,8 @@
     examScore: null,
     examTaken: false,
     learnerName: '',
-    examAnswers: {}
+    examAnswers: {},
+    lastModule: 0
   });
 
   let state = defaultState();
@@ -113,7 +116,47 @@
       const cm = parseInt(parsed.currentModule, 10);
       if (cm >= 0 && cm <= MODULES.length) base.currentModule = cm;
     }
+    const lm = parseInt(parsed.lastModule, 10);
+    if (!isNaN(lm) && lm >= 0 && lm <= MODULES.length) base.lastModule = lm;
+    else if (typeof base.currentModule === 'number' && base.currentModule >= 1) base.lastModule = base.currentModule;
     return base;
+  }
+
+  // ===== THEME =====
+  function getTheme() {
+    const t = document.documentElement.getAttribute('data-theme');
+    return t === 'dark' ? 'dark' : 'light';
+  }
+
+  function applyTheme(theme) {
+    const next = theme === 'dark' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (_) { /* ignore */ }
+    const label = next === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+    const short = next === 'dark' ? 'Light mode' : 'Dark mode';
+    const side = document.getElementById('themeToggleSidebar');
+    const head = document.getElementById('themeToggleHeader');
+    const mob = document.getElementById('themeToggleMobile');
+    if (side) side.textContent = label;
+    if (head) head.textContent = short;
+    if (mob) mob.textContent = next === 'dark' ? 'Light' : 'Dark';
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', next === 'dark' ? '#0c0c0c' : '#f7f7f5');
+  }
+
+  function toggleTheme() {
+    applyTheme(getTheme() === 'dark' ? 'light' : 'dark');
+  }
+
+  function moduleChecklistItems(mod, idx, isCompleted) {
+    const score = state.quizScores[idx];
+    const attempted = typeof score === 'number';
+    const quizDone = isCompleted || (attempted && score >= PASS_QUIZ);
+    return [
+      { text: 'Read the lesson content (' + (mod.duration || 'self-paced') + ')', done: attempted || isCompleted },
+      { text: 'Review examples and key ideas', done: attempted || isCompleted },
+      { text: 'Pass the module quiz (4/5 or higher)', done: !!quizDone }
+    ];
   }
 
   function loadState() {
@@ -402,6 +445,7 @@
       if (pageHeader) pageHeader.style.display = 'block';
       renderSidebar();
       renderDashboardCards();
+      updateContinueBar();
       saveState();
       window.scrollTo(0, 0);
       return;
@@ -409,9 +453,11 @@
 
     if (target === 'exam') {
       state.currentModule = 'exam';
+      state.lastModule = MODULES.length;
       if (pageHeader) pageHeader.style.display = 'none';
       renderExam();
       renderSidebar();
+      updateContinueBar();
       saveState();
       window.scrollTo(0, 0);
       return;
@@ -421,10 +467,68 @@
     if (isNaN(idx) || idx < 1 || idx > MODULES.length) return;
 
     state.currentModule = idx;
+    state.lastModule = idx;
     renderModule(idx);
     renderSidebar();
+    updateContinueBar();
     saveState();
     window.scrollTo(0, 0);
+  }
+
+  function getResumeTarget() {
+    if (state.completedLessons.length >= MODULES.length) {
+      if (state.examTaken && state.examScore !== null && state.examScore >= PASS_EXAM) return 'cert';
+      return 'exam';
+    }
+    if (state.lastModule >= 1 && state.lastModule <= MODULES.length) return state.lastModule;
+    // first incomplete module
+    for (let i = 1; i <= MODULES.length; i++) {
+      if (state.completedLessons.indexOf(i) === -1) return i;
+    }
+    return 1;
+  }
+
+  function updateContinueBar() {
+    const bar = document.getElementById('continueBar');
+    const title = document.getElementById('continueTitle');
+    const sub = document.getElementById('continueSubtitle');
+    const btn = document.getElementById('continueBtn');
+    const startBtn = document.getElementById('startLearningBtn');
+    if (!bar || !btn) return;
+
+    const hasProgress = state.completedLessons.length > 0 || state.examTaken || (state.lastModule >= 1);
+    if (!hasProgress || !state.learnerName) {
+      bar.classList.remove('visible');
+      if (startBtn) startBtn.textContent = 'Start Learning';
+      return;
+    }
+
+    const target = getResumeTarget();
+    let label = 'Continue learning';
+    let detail = 'Pick up where you left off';
+    if (target === 'cert') {
+      label = 'Course complete';
+      detail = 'Open your certificate';
+      btn.textContent = 'View Certificate';
+    } else if (target === 'exam') {
+      label = 'Ready for the final exam';
+      detail = 'All modules completed — take the exam';
+      btn.textContent = 'Go to Final Exam';
+    } else {
+      const mod = MODULES[target - 1];
+      label = 'Continue Module ' + target;
+      detail = (mod ? mod.title : 'Module ' + target) + (mod ? ' · ' + mod.duration : '');
+      btn.textContent = 'Continue';
+    }
+    if (title) title.textContent = label;
+    if (sub) sub.textContent = detail;
+    bar.classList.add('visible');
+    if (startBtn) startBtn.textContent = target === 'cert' ? 'Review modules' : 'Continue Learning';
+
+    btn.onclick = function () {
+      if (target === 'cert') showCertificate();
+      else navigateTo(target);
+    };
   }
 
   // ===== RENDER MODULE =====
@@ -466,10 +570,25 @@
       ? '✅ Completed! Well done.'
       : (score !== undefined && score < PASS_QUIZ ? '❌ Needs improvement. Retake to pass.' : '');
 
+    const checklist = moduleChecklistItems(mod, idx, isCompleted);
+    const checklistHtml =
+      '<div class="module-checklist">' +
+      '<h3>This module checklist · ' + escapeHtml(mod.duration || '') + '</h3>' +
+      '<ul>' +
+      checklist.map(function (item) {
+        return (
+          '<li class="' + (item.done ? 'done' : '') + '">' +
+          '<span class="chk" aria-hidden="true">' + (item.done ? '✓' : '') + '</span>' +
+          '<span>' + escapeHtml(item.text) + '</span></li>'
+        );
+      }).join('') +
+      '</ul></div>';
+
     view.innerHTML =
       '<div class="module-content">' +
-      '<h2>' + mod.icon + ' Module ' + idx + ': ' + escapeHtml(mod.title) + '</h2>' +
+      '<h2>Module ' + idx + ': ' + escapeHtml(mod.title) + '</h2>' +
       '<p class="subtitle">' + escapeHtml(mod.subtitle) + ' · ' + escapeHtml(mod.duration) + '</p>' +
+      checklistHtml +
       mod.content +
       '<div class="quiz-section" id="quiz' + idx + '">' +
       '<h3>Module ' + idx + ' Quiz</h3>' +
@@ -656,12 +775,15 @@
         '</div>';
     } else if (!allModulesDone) {
       html +=
-        '<div class="callout warning"><strong>Locked</strong>' +
-        '<p>Please complete all ' + MODULES.length + ' modules first before taking the final exam.</p></div>' +
-        '<div class="section-nav" style="justify-content:center;border-top:none;padding-top:8px;">' +
-        '<button type="button" class="btn btn-primary btn-lg" id="btnGoModule1">Go to Module 1</button>' +
+        '<div class="empty-state">' +
+        '<div class="empty-ico">🔒</div>' +
+        '<h3>Final exam is locked</h3>' +
+        '<p>Complete all ' + MODULES.length + ' modules (pass each quiz with 4/5) to unlock the final exam. You have finished ' +
+        state.completedLessons.length + ' of ' + MODULES.length + ' modules so far.</p>' +
+        '<div class="section-nav" style="justify-content:center;border-top:none;padding-top:0;margin-top:0;">' +
+        '<button type="button" class="btn btn-primary btn-lg" id="btnGoModule1">Continue learning</button>' +
         '<button type="button" class="btn btn-outline btn-dashboard" id="btnExamDashboard">Main Dashboard</button>' +
-        '</div>';
+        '</div></div>';
     } else {
       html += '<p style="margin-bottom:20px;color:var(--text-muted);">Answer all 25 questions. You need at least ' + PASS_EXAM + '/25 to pass.</p>';
       EXAM_QUESTIONS.forEach(function (q, qi) {
@@ -994,6 +1116,25 @@
       return;
     }
     const report = buildProgressReportMarkdown();
+    // Also stash a local copy the instructor can import on admin board (same browser only)
+    try {
+      const snap = getProgressSnapshot();
+      const roster = JSON.parse(localStorage.getItem(ADMIN_KEY) || '[]');
+      const entry = {
+        name: snap.name,
+        status: snap.status,
+        modules: snap.modulesDone + '/' + snap.totalModules,
+        progress: snap.progressPct + '%',
+        exam: snap.examLabel,
+        date: snap.date,
+        current: snap.currentLabel
+      };
+      const idx = roster.findIndex(function (r) { return r.name === entry.name; });
+      if (idx >= 0) roster[idx] = entry;
+      else roster.push(entry);
+      localStorage.setItem(ADMIN_KEY, JSON.stringify(roster));
+    } catch (_) { /* ignore */ }
+
     const done = function () {
       toast('Progress report copied. Paste it in an email or chat to the course owner.');
     };
@@ -1004,6 +1145,49 @@
     } else {
       window.prompt('Copy this progress report:', report);
     }
+  }
+
+  function exportProgressSummary() {
+    if (!state.learnerName) {
+      showNamePrompt();
+      toast('Enter your name first.');
+      return;
+    }
+    const s = getProgressSnapshot();
+    const w = window.open('', '_blank');
+    if (!w) {
+      toast('Pop-up blocked. Allow pop-ups to export.');
+      return;
+    }
+    const rows = MODULES.map(function (mod, i) {
+      const idx = i + 1;
+      const done = state.completedLessons.indexOf(idx) !== -1;
+      const sc = state.quizScores[idx];
+      return '<tr><td>' + idx + '</td><td>' + escapeHtml(mod.title) + '</td><td>' +
+        (done ? 'Completed' : 'In progress') + '</td><td>' +
+        (sc !== undefined ? sc + '/5' : '—') + '</td></tr>';
+    }).join('');
+    w.document.write(
+      '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Progress Summary — ' + escapeHtml(s.name) + '</title>' +
+      '<style>body{font-family:Inter,system-ui,sans-serif;padding:32px;color:#1c1917}' +
+      'h1{font-size:22px;margin:0 0 8px}p{color:#57534e}table{width:100%;border-collapse:collapse;margin-top:20px}' +
+      'th,td{border:1px solid #e7e5e4;padding:8px 10px;text-align:left;font-size:13px}th{background:#fafaf9}' +
+      '.meta{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0;font-size:13px}' +
+      '@media print{button{display:none}}</style></head><body>' +
+      '<h1>AI Awareness V1 — Progress Summary</h1>' +
+      '<p>Foundations track · Workplace AI literacy</p>' +
+      '<div class="meta"><span><strong>Learner:</strong> ' + escapeHtml(s.name) + '</span>' +
+      '<span><strong>Status:</strong> ' + escapeHtml(s.status) + '</span>' +
+      '<span><strong>Progress:</strong> ' + s.progressPct + '%</span>' +
+      '<span><strong>Exam:</strong> ' + escapeHtml(s.examLabel) + '</span>' +
+      '<span><strong>Date:</strong> ' + s.date + '</span></div>' +
+      '<table><thead><tr><th>#</th><th>Module</th><th>Status</th><th>Quiz</th></tr></thead><tbody>' +
+      rows + '</tbody></table>' +
+      '<p style="margin-top:24px;font-size:12px;color:#78716c">Generated from AI Awareness for the Workplace · Author: Ritche Gerona</p>' +
+      '<button onclick="window.print()" style="margin-top:16px;padding:10px 16px">Print / Save as PDF</button>' +
+      '</body></html>'
+    );
+    w.document.close();
   }
 
   // ===== DASHBOARD =====
@@ -1078,6 +1262,8 @@
   window.openAuthorModal = openAuthorModal;
   window.closeAuthorModal = closeAuthorModal;
   window.shareProgressReport = shareProgressReport;
+  window.exportProgressSummary = exportProgressSummary;
+  window.toggleTheme = toggleTheme;
   window.downloadCertificatePNG = downloadCertificatePNG;
   window.showCertificate = showCertificate;
   window.submitQuiz = submitQuiz;
@@ -1094,12 +1280,15 @@
       return;
     }
     loadState();
+    applyTheme(getTheme());
     applyCourseVersionLabels();
     initMobileNav();
     initNameModal();
     initAuthorModal();
     renderSidebar();
     renderDashboardCards();
+    updateContinueBar();
+    updateProgress();
 
     const dash = document.getElementById('dashboard');
     if (dash) dash.style.display = 'block';

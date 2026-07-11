@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Syllabus — AI Awareness V1 Foundations | Ritche Gerona</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#1c1917; --muted:#57534e; --line:#e7e5e4; --accent:#0f766e; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, system-ui, sans-serif; color: var(--ink); background: #f7f7f5; line-height: 1.55; }
+  .wrap { max-width: 800px; margin: 0 auto; padding: 40px 24px 64px; background: #fff; min-height: 100vh; box-shadow: 0 0 0 1px var(--line); }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .mark { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg,#0f766e,#134e4a); color:#ecfdf5; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; }
+  h1 { font-size: 26px; letter-spacing: -0.03em; margin: 12px 0 6px; }
+  .sub { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+  .meta span { font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: #fafaf9; color: var(--muted); }
+  .meta .v { color: var(--accent); border-color: #99f6e4; background: #ccfbf1; }
+  h2 { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 28px 0 12px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .actions { margin: 24px 0; display: flex; gap: 10px; flex-wrap: wrap; }
+  button, .btn { font: inherit; font-size: 13px; font-weight: 600; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); background: #1a1a1a; color: #fff; cursor: pointer; text-decoration: none; display: inline-flex; }
+  .btn.secondary { background: #fff; color: var(--ink); }
+  p { font-size: 14px; color: var(--muted); }
+  footer { margin-top: 32px; font-size: 12px; color: #a8a29e; }
+  @media print {
+    body { background: #fff; }
+    .actions { display: none; }
+    .wrap { box-shadow: none; padding: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand"><div class="mark">RG</div><div><strong>AI Awareness Series</strong><div style="font-size:12px;color:#78716c">by Ritche Gerona</div></div></div>
+    <h1>Course Syllabus</h1>
+    <p class="sub">AI Awareness for the Workplace — Version 1 · Foundations</p>
+    <div class="meta">
+      <span class="v">V1 Foundations</span>
+      <span>12 modules</span>
+      <span>~4h 45min</span>
+      <span>Quizzes 4/5 pass</span>
+      <span>Exam 18/25 pass</span>
+      <span>Certificate on completion</span>
+    </div>
+
+    <div class="actions">
+      <button type="button" onclick="window.print()">Print / Save as PDF</button>
+      <a class="btn secondary" href="./index.html">Open course</a>
+    </div>
+
+    <h2>Audience</h2>
+    <p>Professionals new to AI who need practical workplace literacy — not a coding bootcamp.</p>
+
+    <h2>Learning outcomes</h2>
+    <p>After V1, learners can explain core AI concepts, use tools responsibly, write better prompts, and apply AI to everyday work tasks with critical judgment.</p>
+
+    <h2>Module outline</h2>
+    <table>
+      <thead><tr><th>#</th><th>Module</th><th>Focus</th><th>Time</th></tr></thead>
+      <tbody id="moduleRows"></tbody>
+    </table>
+
+    <h2>Assessment</h2>
+    <p>Each module ends with a 5-question quiz (pass 4/5). The final exam has 25 questions (pass 18/25). A personalized certificate is available after exam pass.</p>
+
+    <h2>How to take the course</h2>
+    <p>Open the live site, enter your name, complete modules in any order (exam unlocks after all modules), then download your certificate. Progress is saved in your browser.</p>
+
+    <footer>
+      Live course: https://ritchegerona.github.io/ai-awareness-course/<br>
+      Author: Ritche Gerona · Pasig City, Philippines
+    </footer>
+  </div>
+  <script src="js/modules-data.js?v=23"></script>
+  <script>
+    (function () {
+      var tbody = document.getElementById('moduleRows');
+      if (!tbody || typeof MODULES === 'undefined') return;
+      tbody.innerHTML = MODULES.map(function (m, i) {
+        return '<tr><td>' + (i + 1) + '</td><td><strong>' + m.title + '</strong></td><td>' + m.subtitle + '</td><td>' + m.duration + '</td></tr>';
+      }).join('');
+    })();
+  </script>
+</body>
+</html>

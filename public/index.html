@@ -12,11 +12,22 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Great+Vibes&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=22">
+<link rel="stylesheet" href="css/styles.css?v=23">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<script>
+  // Apply theme ASAP to avoid flash
+  (function () {
+    try {
+      var t = localStorage.getItem('aiCourseTheme') || 'light';
+      document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  })();
+</script>
 </head>
 <body>
 <div class="app-container" id="app">
@@ -24,8 +35,9 @@
   <!-- Mobile top bar -->
   <div class="mobile-topbar" id="mobileTopbar">
     <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar">☰</button>
-    <div class="mobile-topbar-title">AI Awareness</div>
+    <div class="mobile-topbar-title"><span class="brand-mark" style="width:22px;height:22px;font-size:9px;margin-right:6px;">RG</span>AI Awareness</div>
     <span class="mobile-topbar-spacer"></span>
+    <button type="button" class="mobile-home-btn" id="themeToggleMobile" onclick="toggleTheme()" aria-label="Toggle theme">Theme</button>
     <button type="button" class="mobile-home-btn" id="mobileHomeBtn" onclick="navigateTo(0)" aria-label="Main dashboard">Dashboard</button>
   </div>
   <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
@@ -34,11 +46,12 @@
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close menu">×</button>
-      <h1>AI Awareness</h1>
+      <h1><span class="brand-mark">RG</span>AI Awareness</h1>
       <p>Workplace AI literacy series</p>
       <p class="course-author">By <strong>Ritche Gerona</strong></p>
       <div class="version-badge" id="sidebarVersionBadge">Version 1 · Foundations</div>
       <button type="button" class="btn-home" onclick="navigateTo(0)">Main Dashboard</button>
+      <button type="button" class="theme-toggle sidebar-theme" id="themeToggleSidebar" onclick="toggleTheme()">Switch to dark mode</button>
     </div>
     <ul class="module-list" id="moduleList"></ul>
     <div class="sidebar-progress">
@@ -136,6 +149,7 @@
             <button type="button" class="meta-link" id="aboutAuthorBtn" onclick="openAuthorModal()" aria-haspopup="dialog" aria-controls="authorModal">
               About Author
             </button>
+            <button type="button" class="theme-toggle" id="themeToggleHeader" onclick="toggleTheme()">Dark mode</button>
           </div>
         </div>
         <div class="hero-progress-card" id="heroProgressCard" aria-label="Your course progress">
@@ -160,6 +174,14 @@
 
     <!-- Dashboard (landing) -->
     <div class="dashboard" id="dashboard">
+      <div class="continue-bar" id="continueBar">
+        <div class="continue-copy">
+          <strong id="continueTitle">Continue learning</strong>
+          <span id="continueSubtitle">Pick up where you left off</span>
+        </div>
+        <button type="button" class="btn btn-primary" id="continueBtn">Continue</button>
+      </div>
+
       <h2>Learning Path</h2>
       <div class="version-path" id="versionPath">
         <div class="version-card active interactive-card" tabindex="0">
@@ -210,8 +232,14 @@
       <div class="dashboard-grid" id="moduleCards"></div>
 
       <div class="cta-row">
-        <button class="btn btn-primary btn-lg btn-glow" onclick="navigateTo(1)">Start Learning</button>
+        <button class="btn btn-primary btn-lg btn-glow" id="startLearningBtn" onclick="navigateTo(1)">Start Learning</button>
         <button type="button" class="btn btn-outline btn-lg" id="shareProgressBtn" onclick="shareProgressReport()">Share Progress for Records</button>
+        <button type="button" class="btn btn-outline btn-lg" id="exportProgressBtn" onclick="exportProgressSummary()">Export Progress Summary</button>
+      </div>
+      <div class="utility-links">
+        <a href="syllabus.html" target="_blank" rel="noopener">Printable syllabus</a>
+        <a href="certificate-preview.html" target="_blank" rel="noopener">Certificate preview</a>
+        <a href="admin.html" target="_blank" rel="noopener">Admin progress board</a>
       </div>
       <p class="cta-hint">
         Progress is saved on your device. Use <strong>Share Progress for Records</strong> to copy a report for the private completion roster.
@@ -421,8 +449,8 @@
 <div class="toast" id="appToast" role="status" aria-live="polite" hidden></div>
 
 
-<script src="js/vendor/html2canvas.min.js?v=22"></script>
-<script src="js/modules-data.js?v=22"></script>
-<script src="js/app.js?v=22"></script>
+<script src="js/vendor/html2canvas.min.js?v=23"></script>
+<script src="js/modules-data.js?v=23"></script>
+<script src="js/app.js?v=23"></script>
 </body>
 </html>

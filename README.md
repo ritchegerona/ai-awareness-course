@@ -7,6 +7,8 @@ Self-paced AI literacy course for office teams. Runs in any modern browser on **
 
 **Live course:** https://ritchegerona.github.io/ai-awareness-course/  
 **Certificate preview:** https://ritchegerona.github.io/ai-awareness-course/certificate-preview.html  
+**Syllabus (print/PDF):** https://ritchegerona.github.io/ai-awareness-course/syllabus.html  
+**Admin board (local roster):** https://ritchegerona.github.io/ai-awareness-course/admin.html  
 
 Share text for Teams/email: [SHARE.md](./SHARE.md)
 
@@ -20,7 +22,9 @@ Share text for Teams/email: [SHARE.md](./SHARE.md)
 4. Pass the **final exam** (**18/25**)  
 5. Download your **certificate PNG**  
 
-Optional: **Share Progress for Records** on the home page to copy a report for the instructor.
+Optional: **Share Progress for Records** / **Export Progress Summary** on the home page.
+
+Theme: use **Dark mode / Light mode** in the header or sidebar.
 
 **Tips:** use the same browser/device to keep progress; avoid private/incognito mode if you want progress saved.
 
