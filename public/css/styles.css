@@ -122,7 +122,8 @@ body {
   background: transparent;
 }
 .sidebar-header {
-  padding: 28px 22px 20px;
+  padding: 28px 22px 28px;
+  min-height: 320px;
   border-bottom: 1px solid var(--sidebar-border);
   position: relative;
   overflow: hidden;
@@ -130,16 +131,22 @@ body {
   background: color-mix(in srgb, var(--sidebar-bg) 82%, transparent);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
-/* Author photo as soft background in upper sidebar (above author line) */
+/* Author photo as soft background — taller crop to show full portrait */
 .sidebar-header::before {
   content: "";
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: -48px;
   z-index: 0;
   background-image: url("../images/ritche-gerona.png");
   background-size: cover;
-  background-position: center 18%;
+  background-position: center top;
   background-repeat: no-repeat;
   opacity: 0.5;
   pointer-events: none;
@@ -147,14 +154,18 @@ body {
 .sidebar-header::after {
   content: "";
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: -48px;
   z-index: 0;
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--sidebar-bg) 35%, transparent) 0%,
-    color-mix(in srgb, var(--sidebar-bg) 55%, transparent) 45%,
-    color-mix(in srgb, var(--sidebar-bg) 88%, transparent) 100%
+    color-mix(in srgb, var(--sidebar-bg) 22%, transparent) 0%,
+    color-mix(in srgb, var(--sidebar-bg) 38%, transparent) 40%,
+    color-mix(in srgb, var(--sidebar-bg) 72%, transparent) 72%,
+    color-mix(in srgb, var(--sidebar-bg) 92%, transparent) 100%
   );
 }
 .sidebar-header > * {
@@ -1997,9 +2008,10 @@ html[data-theme="dark"] .sidebar-header::before {
 html[data-theme="dark"] .sidebar-header::after {
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--sidebar-bg) 45%, transparent) 0%,
-    color-mix(in srgb, var(--sidebar-bg) 65%, transparent) 50%,
-    color-mix(in srgb, var(--sidebar-bg) 92%, transparent) 100%
+    color-mix(in srgb, var(--sidebar-bg) 28%, transparent) 0%,
+    color-mix(in srgb, var(--sidebar-bg) 48%, transparent) 42%,
+    color-mix(in srgb, var(--sidebar-bg) 78%, transparent) 75%,
+    color-mix(in srgb, var(--sidebar-bg) 94%, transparent) 100%
   );
 }
 html[data-theme="dark"] .hero-progress-card,
