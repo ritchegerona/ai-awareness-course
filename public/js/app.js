@@ -132,20 +132,33 @@
     const next = theme === 'dark' ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem(THEME_KEY, next); } catch (_) { /* ignore */ }
-    const label = next === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
-    const short = next === 'dark' ? 'Light mode' : 'Dark mode';
+
+    const isDark = next === 'dark';
     const side = document.getElementById('themeToggleSidebar');
-    const head = document.getElementById('themeToggleHeader');
+    const label = document.getElementById('themeSwitchLabel');
     const mob = document.getElementById('themeToggleMobile');
-    if (side) side.textContent = label;
-    if (head) head.textContent = short;
-    if (mob) mob.textContent = next === 'dark' ? 'Light' : 'Dark';
+    if (side) {
+      side.checked = isDark;
+      side.setAttribute('aria-checked', isDark ? 'true' : 'false');
+    }
+    if (label) label.textContent = isDark ? 'Dark mode' : 'Light mode';
+    if (mob) mob.textContent = isDark ? 'Light' : 'Dark';
+
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', next === 'dark' ? '#0c0c0c' : '#f7f7f5');
+    if (meta) meta.setAttribute('content', isDark ? '#0c0c0c' : '#f7f7f5');
   }
 
   function toggleTheme() {
     applyTheme(getTheme() === 'dark' ? 'light' : 'dark');
+  }
+
+  function initThemeToggle() {
+    const side = document.getElementById('themeToggleSidebar');
+    if (side) {
+      side.addEventListener('change', function () {
+        applyTheme(side.checked ? 'dark' : 'light');
+      });
+    }
   }
 
   function moduleChecklistItems(mod, idx, isCompleted) {
@@ -1283,6 +1296,7 @@
     }
     loadState();
     applyTheme(getTheme());
+    initThemeToggle();
     applyCourseVersionLabels();
     initMobileNav();
     initNameModal();
