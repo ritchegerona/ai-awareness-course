@@ -216,6 +216,29 @@ html[data-theme="dark"] .sidebar-header .sidebar-title {
   margin-top: 6px;
   line-height: 1.45;
 }
+.sidebar-header .sidebar-tagline {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-top: 8px;
+  margin-bottom: 2px;
+  line-height: 1.4;
+  background: linear-gradient(135deg, var(--sidebar-text-strong) 0%, var(--accent) 130%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter:
+    drop-shadow(0 1px 1px rgba(28, 25, 23, 0.3))
+    drop-shadow(0 2px 6px rgba(15, 118, 110, 0.3))
+    drop-shadow(0 4px 10px rgba(28, 25, 23, 0.16));
+}
+html[data-theme="dark"] .sidebar-header .sidebar-tagline {
+  filter:
+    drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6))
+    drop-shadow(0 2px 8px rgba(45, 212, 191, 0.4))
+    drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+}
 .course-author {
   display: none;
 }
