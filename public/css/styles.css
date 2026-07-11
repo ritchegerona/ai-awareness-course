@@ -172,14 +172,31 @@ body {
   position: relative;
   z-index: 1;
 }
-.sidebar-header h1 {
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+.sidebar-header h1,
+.sidebar-header .sidebar-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: var(--sidebar-text-strong);
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: inline-block;
+  line-height: 1.2;
+  margin: 0 0 6px;
+  padding: 4px 0;
+  background: linear-gradient(135deg, var(--sidebar-text-strong) 0%, var(--accent) 120%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  position: relative;
+}
+.sidebar-header .sidebar-title::after {
+  content: "";
+  display: block;
+  width: 42px;
+  height: 3px;
+  margin-top: 8px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), transparent);
 }
 .sidebar-header h1 .icon { font-size: 18px; opacity: 0.9; }
 .sidebar-header > p {
@@ -189,11 +206,8 @@ body {
   line-height: 1.45;
 }
 .course-author {
-  font-size: 12px;
-  color: var(--sidebar-text);
-  margin-top: 10px;
+  display: none;
 }
-.course-author strong { color: var(--sidebar-text-strong); font-weight: 600; }
 .version-badge {
   display: inline-flex;
   align-items: center;
