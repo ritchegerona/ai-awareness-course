@@ -145,8 +145,8 @@ body {
   bottom: -48px;
   z-index: 0;
   background-image: url("../images/ritche-gerona.png");
-  background-size: cover;
-  background-position: center top;
+  background-size: 128% auto;
+  background-position: center 8%;
   background-repeat: no-repeat;
   opacity: 0.5;
   pointer-events: none;
