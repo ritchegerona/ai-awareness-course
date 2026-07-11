@@ -263,6 +263,8 @@
     saveState();
     const modal = document.getElementById('nameModal');
     if (modal) modal.classList.remove('active');
+    updateContinueBar();
+    updateProgress();
   }
 
   function initNameModal() {
