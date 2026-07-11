@@ -676,6 +676,32 @@
   }
 
   // ===== CERTIFICATE =====
+  function buildCertificateId(name, score) {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    let hash = 0;
+    const raw = String(name || '') + '|' + String(score) + '|' + y + m + d;
+    for (let i = 0; i < raw.length; i++) {
+      hash = ((hash << 5) - hash) + raw.charCodeAt(i);
+      hash |= 0;
+    }
+    const serial = Math.abs(hash).toString(36).toUpperCase().slice(0, 4).padStart(4, '0');
+    return 'AIA-V' + ACTIVE_COURSE.version + '-' + y + m + d + '-' + serial;
+  }
+
+  function updateCertificateQr(certId) {
+    const img = document.getElementById('certQr');
+    if (!img) return;
+    const payload = 'https://ritchegerona.github.io/ai-awareness-course/?cert=' +
+      encodeURIComponent(certId || 'V1');
+    // External QR image (CORS-friendly) for PNG export
+    img.crossOrigin = 'anonymous';
+    img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=8&data=' +
+      encodeURIComponent(payload);
+  }
+
   function showCertificate() {
     if (!state.examTaken || state.examScore === null || state.examScore < PASS_EXAM) {
       toast('Pass the final exam to claim your certificate.');
@@ -694,6 +720,10 @@
     const dateEl = document.getElementById('certDate');
     const scoreEl = document.getElementById('certScore');
     const verEl = document.getElementById('certVersionLabel');
+    const idEl = document.getElementById('certId');
+    const levelEl = document.getElementById('certLevel');
+    const certId = buildCertificateId(state.learnerName, state.examScore);
+
     if (nameEl) nameEl.textContent = state.learnerName;
     if (dateEl) {
       dateEl.textContent = new Date().toLocaleDateString('en-US', {
@@ -702,8 +732,12 @@
     }
     if (scoreEl) scoreEl.textContent = state.examScore + '/25';
     if (verEl) {
-      verEl.textContent = 'Version ' + ACTIVE_COURSE.version + ' · ' + ACTIVE_COURSE.level;
+      verEl.textContent = 'Version ' + ACTIVE_COURSE.version + ' · ' + ACTIVE_COURSE.level + ' · New to AI';
     }
+    if (idEl) idEl.textContent = certId;
+    if (levelEl) levelEl.textContent = ACTIVE_COURSE.level.toUpperCase();
+    updateCertificateQr(certId);
+
     saveState();
     closeSidebarIfMobile();
     window.scrollTo(0, 0);
@@ -720,8 +754,7 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
   }
 
-  function restoreCertStyles(cert, glow, origW, origH) {
-    if (glow) glow.style.animation = '';
+  function restoreCertStyles(cert, origW, origH) {
     cert.style.width = origW;
     cert.style.height = origH;
   }
@@ -738,11 +771,8 @@
       return;
     }
 
-    const glow = cert.querySelector('.certificate-border-glow');
-    if (glow) glow.style.animation = 'none';
-
-    const LANDSCAPE_W = 920;
-    const LANDSCAPE_H = 650;
+    const LANDSCAPE_W = 1000;
+    const LANDSCAPE_H = 700;
     const origW = cert.style.width;
     const origH = cert.style.height;
     cert.style.width = LANDSCAPE_W + 'px';
@@ -756,46 +786,49 @@
       btn.textContent = 'Generating…';
     }
 
-    html2canvas(cert, {
-      scale: 2,
-      backgroundColor: '#fafaf9',
-      allowTaint: false,
-      useCORS: true,
-      logging: false,
-      width: LANDSCAPE_W,
-      height: LANDSCAPE_H
-    }).then(function (canvas) {
-      restoreCertStyles(cert, glow, origW, origH);
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = btn.dataset.prevText || 'Download Certificate (PNG)';
-      }
-      if (canvas.toBlob) {
-        canvas.toBlob(function (blob) {
-          if (blob) {
-            downloadBlob(blob, filename);
-          } else {
-            const link = document.createElement('a');
-            link.download = filename;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-          }
-        }, 'image/png');
-      } else {
-        const link = document.createElement('a');
-        link.download = filename;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      }
-    }).catch(function () {
-      restoreCertStyles(cert, glow, origW, origH);
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = btn.dataset.prevText || 'Download Certificate (PNG)';
-      }
-      toast('PNG export failed. Opening print dialog…');
-      window.print();
-    });
+    // Wait briefly so QR image can load before capture
+    setTimeout(function () {
+      html2canvas(cert, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        allowTaint: true,
+        useCORS: true,
+        logging: false,
+        width: LANDSCAPE_W,
+        height: LANDSCAPE_H
+      }).then(function (canvas) {
+        restoreCertStyles(cert, origW, origH);
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = btn.dataset.prevText || 'Download Certificate (PNG)';
+        }
+        if (canvas.toBlob) {
+          canvas.toBlob(function (blob) {
+            if (blob) {
+              downloadBlob(blob, filename);
+            } else {
+              const link = document.createElement('a');
+              link.download = filename;
+              link.href = canvas.toDataURL('image/png');
+              link.click();
+            }
+          }, 'image/png');
+        } else {
+          const link = document.createElement('a');
+          link.download = filename;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        }
+      }).catch(function () {
+        restoreCertStyles(cert, origW, origH);
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = btn.dataset.prevText || 'Download Certificate (PNG)';
+        }
+        toast('PNG export failed. Opening print dialog…');
+        window.print();
+      });
+    }, 400);
   }
 
   // ===== DASHBOARD =====

@@ -3,47 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Certificate Preview — AI Awareness V1</title>
-<link rel="stylesheet" href="css/styles.css?v=8">
+<title>Certificate Preview — AI Awareness V1 Foundations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Great+Vibes&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=9">
 <style>
-  body { margin: 0; background: #e7e5e4; min-height: 100vh; display:flex; align-items:center; justify-content:center; padding: 32px; }
-  .certificate-wrapper { display:block !important; padding:0; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    background: #e2e8f0;
+  }
+  .certificate-wrapper {
+    display: block !important;
+    padding: 0;
+    max-width: none;
+  }
+  .note {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font: 600 12px/1.4 Inter, system-ui, sans-serif;
+    color: #334155;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    padding: 8px 14px;
+    z-index: 10;
+  }
 </style>
 </head>
 <body>
+<p class="note">Certificate preview · AI Awareness V1 Foundations</p>
 <div class="certificate-wrapper active">
   <div class="certificate" id="certificateContent">
-    <div class="certificate-frame"></div>
-    <div class="certificate-frame-inner"></div>
-    <div class="certificate-inner">
-      <div class="certificate-mark">RG</div>
-      <h2>Certificate of Completion</h2>
-      <h1>AI Awareness</h1>
-      <p class="cert-subtitle">Workplace Artificial Intelligence Literacy</p>
-      <p class="cert-version">Version 1 · Foundations</p>
-      <div class="cert-divider"></div>
-      <p class="presented">Presented to</p>
-      <div class="recipient">Alex Rivera</div>
-      <p class="completion-text">For successfully completing all 12 modules, module quizzes, and the final examination of <strong>AI Awareness for the Workplace — Version 1: Foundations</strong>, demonstrating a foundational understanding of artificial intelligence, its practical applications, ethical considerations, and responsible use in a professional environment.</p>
-      <div class="details">
-        <span>Date: July 11, 2026</span>
-        <span>Score: 22/25</span>
-        <span>Duration: ~4h 45min</span>
-        <span>12 Modules</span>
-        <span>Level: Foundations</span>
+    <div class="cert-outer-border"></div>
+    <div class="cert-inner-border"></div>
+
+    <div class="cert-corner-tl" aria-hidden="true">
+      <svg class="cert-ai-head" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="aiGlow" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#38bdf8"/>
+            <stop offset="100%" stop-color="#1d4ed8"/>
+          </linearGradient>
+        </defs>
+        <circle cx="100" cy="100" r="70" stroke="url(#aiGlow)" stroke-width="1.5" opacity="0.35"/>
+        <path d="M70 120 C70 80 85 55 115 55 C145 55 155 80 155 105 C155 140 130 155 100 155 C85 155 75 145 70 130 Z" stroke="#38bdf8" stroke-width="2" fill="rgba(14,165,233,0.08)"/>
+        <circle cx="100" cy="100" r="22" stroke="#38bdf8" stroke-width="2" fill="rgba(15,23,42,0.5)"/>
+        <text x="100" y="106" text-anchor="middle" fill="#7dd3fc" font-size="16" font-family="Inter,Arial,sans-serif" font-weight="700">AI</text>
+        <circle cx="48" cy="70" r="8" stroke="#38bdf8" stroke-width="1.2" fill="none" opacity="0.7"/>
+        <circle cx="48" cy="100" r="8" stroke="#38bdf8" stroke-width="1.2" fill="none" opacity="0.7"/>
+        <circle cx="48" cy="130" r="8" stroke="#38bdf8" stroke-width="1.2" fill="none" opacity="0.7"/>
+        <circle cx="155" cy="55" r="3" fill="#38bdf8"/>
+        <circle cx="170" cy="85" r="2" fill="#38bdf8" opacity="0.7"/>
+        <circle cx="160" cy="120" r="2.5" fill="#60a5fa"/>
+        <path d="M56 70 H72 M56 100 H70 M56 130 H72" stroke="#38bdf8" stroke-width="1" opacity="0.5"/>
+      </svg>
+    </div>
+
+    <div class="cert-ribbon">
+      <div class="cert-ribbon-inner">
+        <span>AI AWARENESS</span>
+        <span class="cert-ribbon-sub">VERSION 1</span>
+        <span class="cert-ribbon-stars">★★★★★</span>
       </div>
+    </div>
+
+    <ul class="cert-skills">
+      <li><span class="sk-ico">◎</span><div><strong>AI Fundamentals</strong><em>Understand AI, LLMs &amp; ecosystem</em></div></li>
+      <li><span class="sk-ico">◎</span><div><strong>Prompt Engineering</strong><em>Clear prompts &amp; communication</em></div></li>
+      <li><span class="sk-ico">◎</span><div><strong>Workplace AI</strong><em>Daily tools, automation &amp; workflows</em></div></li>
+      <li><span class="sk-ico">◎</span><div><strong>Ethics &amp; Privacy</strong><em>Responsible &amp; safe AI use</em></div></li>
+      <li><span class="sk-ico">◎</span><div><strong>Critical Thinking</strong><em>Verify, review &amp; decide wisely</em></div></li>
+      <li><span class="sk-ico">◎</span><div><strong>Practical Application</strong><em>Email, docs, research &amp; productivity</em></div></li>
+    </ul>
+
+    <div class="cert-center">
+      <div class="cert-crest" aria-hidden="true">
+        <svg viewBox="0 0 120 120" width="72" height="72" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="60" r="56" stroke="#c9a227" stroke-width="2"/>
+          <circle cx="60" cy="60" r="48" stroke="#c9a227" stroke-width="1" opacity="0.5"/>
+          <path d="M60 28 C48 28 40 40 40 52 C40 62 46 70 52 76 C48 82 46 88 48 96 C52 94 56 92 60 92 C64 92 68 94 72 96 C74 88 72 82 68 76 C74 70 80 62 80 52 C80 40 72 28 60 28 Z" fill="#c9a227" opacity="0.9"/>
+          <path d="M50 52 H70 M55 44 H65 M52 60 H68" stroke="#0b1b3a" stroke-width="1.5" opacity="0.35"/>
+          <path d="M30 70 Q60 95 90 70" stroke="#c9a227" stroke-width="2" fill="none"/>
+          <path d="M34 78 Q60 100 86 78" stroke="#c9a227" stroke-width="1.5" fill="none" opacity="0.7"/>
+        </svg>
+      </div>
+
+      <p class="cert-kicker">Certificate of Completion</p>
+      <p class="cert-presented">This is proudly presented to</p>
+      <div class="recipient" id="certName">Ritche Gerona</div>
+      <p class="cert-for">For successfully completing</p>
+      <h1 class="cert-program">AI Awareness for the Workplace</h1>
+      <p class="cert-level-line">Version 1 · Foundations · New to AI</p>
+      <p class="completion-text">This certificate recognizes successful completion of all 12 modules, module quizzes, and the final examination, demonstrating a foundational understanding of artificial intelligence, workplace applications, ethics, and responsible professional use.</p>
+
+      <div class="cert-meta-row">
+        <div class="cert-meta-item">
+          <span class="meta-label">Completion Date</span>
+          <span class="meta-value">July 11, 2026</span>
+        </div>
+        <div class="cert-meta-item">
+          <span class="meta-label">Certificate ID</span>
+          <span class="meta-value">AIA-V1-20260711-DEMO</span>
+        </div>
+        <div class="cert-meta-item">
+          <span class="meta-label">Exam Score</span>
+          <span class="meta-value">22/25</span>
+        </div>
+        <div class="cert-meta-item">
+          <span class="meta-label">AI Level</span>
+          <span class="meta-value gold">FOUNDATIONS</span>
+        </div>
+      </div>
+
       <div class="signature-area">
         <div class="signature-box">
           <div class="sig-name">Ritche Gerona</div>
           <div class="sig-line"></div>
-          <div class="sig-label">Course Author</div>
+          <div class="sig-label">Ritche Gerona</div>
+          <div class="sig-role">Course Author · AI Automation Developer</div>
+        </div>
+        <div class="cert-center-seal" aria-hidden="true">
+          <svg viewBox="0 0 80 80" width="64" height="64">
+            <circle cx="40" cy="40" r="36" fill="#0b1b3a" stroke="#c9a227" stroke-width="3"/>
+            <circle cx="40" cy="40" r="28" stroke="#38bdf8" stroke-width="1.2" opacity="0.8"/>
+            <text x="40" y="45" text-anchor="middle" fill="#7dd3fc" font-size="14" font-family="Inter,Arial" font-weight="700">AI</text>
+          </svg>
         </div>
         <div class="signature-box">
           <div class="sig-name">AI Awareness Series</div>
           <div class="sig-line"></div>
-          <div class="sig-label">Version 1 · Foundations</div>
+          <div class="sig-label">AI Awareness Program</div>
+          <div class="sig-role">Version 1 · Foundations Track</div>
         </div>
       </div>
+    </div>
+
+    <div class="cert-gold-seal" aria-hidden="true">
+      <svg viewBox="0 0 160 180" width="120" height="135">
+        <defs>
+          <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f5e6a6"/>
+            <stop offset="45%" stop-color="#c9a227"/>
+            <stop offset="100%" stop-color="#8a7014"/>
+          </linearGradient>
+        </defs>
+        <circle cx="80" cy="70" r="58" fill="url(#goldGrad)" stroke="#8a7014" stroke-width="2"/>
+        <circle cx="80" cy="70" r="48" fill="none" stroke="#fff8dc" stroke-width="1.5" opacity="0.7"/>
+        <path d="M80 40 C70 40 62 50 62 60 C62 68 68 74 72 78 C68 84 66 90 68 96 C72 94 76 92 80 92 C84 92 88 94 92 96 C94 90 92 84 88 78 C92 74 98 68 98 60 C98 50 90 40 80 40 Z" fill="#0b1b3a" opacity="0.85"/>
+        <text x="80" y="118" text-anchor="middle" fill="#0b1b3a" font-size="11" font-family="Cinzel,serif" font-weight="700">AI AWARENESS</text>
+        <text x="80" y="132" text-anchor="middle" fill="#0b1b3a" font-size="9" font-family="Inter,Arial" font-weight="600">FOUNDATIONS</text>
+        <path d="M55 140 L80 175 L105 140 Z" fill="#0b1b3a"/>
+        <path d="M58 140 L80 168 L102 140 Z" fill="#c9a227"/>
+        <text x="80" y="152" text-anchor="middle" fill="#0b1b3a" font-size="8" font-family="Inter,Arial" font-weight="700">★★★★★</text>
+      </svg>
+    </div>
+
+    <div class="cert-qr-block">
+      <img class="cert-qr" alt="Certificate QR" width="72" height="72"
+        src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=8&data=https%3A%2F%2Fritchegerona.github.io%2Fai-awareness-course%2F">
+      <span>Scan to open course</span>
     </div>
   </div>
 </div>
