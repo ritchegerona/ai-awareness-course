@@ -1,7 +1,7 @@
 {
   "name": "AI Awareness for the Workplace",
   "short_name": "AI Awareness",
-  "description": "Interactive AI awareness course with quizzes, final exam, and certificate.",
+  "description": "Interactive AI awareness course by Ritche Gerona — quizzes, final exam, and certificate.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

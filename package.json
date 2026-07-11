@@ -2,6 +2,7 @@
   "name": "ai-awareness-course",
   "version": "1.0.0",
   "description": "AI Awareness for the Workplace — cross-platform interactive course web app",
+  "author": "Ritche Gerona",
   "private": true,
   "main": "server.js",
   "scripts": {

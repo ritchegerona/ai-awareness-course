@@ -174,12 +174,39 @@ body {
 }
 .page-header .meta {
   display: flex;
+  flex-wrap: wrap;
   gap: 24px;
   margin-top: 20px;
   font-size: 14px;
   color: var(--gray-400);
 }
 .page-header .meta span { display: flex; align-items: center; gap: 6px; }
+.page-header .author-byline {
+  margin-top: 14px;
+  font-size: 15px;
+  color: var(--gray-300);
+}
+.page-header .author-byline strong {
+  color: #fff;
+  font-weight: 600;
+}
+.course-author {
+  font-size: 12px;
+  color: var(--gray-400);
+  margin-top: 8px;
+}
+.course-author strong {
+  color: var(--gray-200);
+  font-weight: 600;
+}
+.certificate .sig-name {
+  font-family: 'Segoe UI', Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  font-style: italic;
+  color: #00d4ff;
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
 
 /* ===== DASHBOARD (landing) ===== */
 .dashboard {
@@ -1073,6 +1100,7 @@ body.sidebar-open { overflow: hidden; }
   .certificate .cert-subtitle { color: rgba(0,212,255,0.6) !important; }
   .certificate .details { color: rgba(0,212,255,0.5) !important; }
   .certificate .sig-line { background: linear-gradient(90deg, transparent, rgba(0,212,255,0.4), transparent) !important; }
+  .certificate .sig-name { color: #00d4ff !important; }
   .certificate .sig-label { color: rgba(0,212,255,0.35) !important; }
   .certificate-seal { opacity: 0.25 !important; }
   .certificate-logo svg { filter: none !important; }

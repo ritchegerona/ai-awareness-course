@@ -2,7 +2,7 @@
 
 ## Live course link
 
-After GitHub Pages is enabled, your public link will be:
+**Author:** Ritche Gerona  
 
 **https://ritchegerona.github.io/ai-awareness-course/**
 
@@ -17,7 +17,7 @@ Colleagues need **only a browser** — no install, no login, no Google Drive.
 ```
 Hi team,
 
-Please take our self-paced AI Awareness course (~4–5 hours total).
+Please take our self-paced AI Awareness course by Ritche Gerona (~4–5 hours total).
 You can pause anytime — progress is saved in your browser.
 
 How to start:

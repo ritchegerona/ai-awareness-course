@@ -1,5 +1,7 @@
 # AI Awareness for the Workplace
 
+**Author: Ritche Gerona**
+
 Interactive, self-paced AI literacy course for office teams. Works on **Windows, macOS, and Linux** in any modern browser.
 
 **For colleagues:** open the public link, learn, pass the exam, download a certificate. No install.
@@ -137,4 +139,4 @@ ai-awareness-course.html     ← original single-file archive
 
 ## License
 
-Course materials are for the project owner’s use. All rights reserved unless otherwise stated.
+Course by **Ritche Gerona**. All rights reserved unless otherwise stated.
