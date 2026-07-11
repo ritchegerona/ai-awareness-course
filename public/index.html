@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Great+Vibes&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=21">
+<link rel="stylesheet" href="css/styles.css?v=22">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -55,6 +55,70 @@
 
     <!-- Page Header -->
     <div class="page-header" id="pageHeader">
+      <!-- Abstract AI mesh background -->
+      <div class="header-mesh" aria-hidden="true">
+        <svg class="header-mesh-svg" viewBox="0 0 1200 320" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="meshLine" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#0f766e" stop-opacity="0.22"/>
+              <stop offset="50%" stop-color="#64748b" stop-opacity="0.14"/>
+              <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.18"/>
+            </linearGradient>
+            <radialGradient id="meshGlowA" cx="15%" cy="20%" r="45%">
+              <stop offset="0%" stop-color="#0f766e" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="#0f766e" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="meshGlowB" cx="90%" cy="10%" r="40%">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.1"/>
+              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="1200" height="320" fill="url(#meshGlowA)"/>
+          <rect width="1200" height="320" fill="url(#meshGlowB)"/>
+          <!-- Network connections -->
+          <g stroke="url(#meshLine)" stroke-width="1" fill="none">
+            <path d="M40 60 L160 40 L280 90 L400 50 L520 110 L640 70 L760 120 L900 55 L1050 100 L1160 40"/>
+            <path d="M60 180 L180 140 L300 200 L420 150 L560 210 L700 160 L840 220 L980 170 L1120 200"/>
+            <path d="M100 280 L220 240 L360 270 L500 230 L640 290 L780 250 L920 280 L1080 240"/>
+            <path d="M160 40 L180 140 L220 240"/>
+            <path d="M400 50 L420 150 L500 230"/>
+            <path d="M640 70 L700 160 L780 250"/>
+            <path d="M900 55 L980 170 L1080 240"/>
+            <path d="M280 90 L300 200 L360 270"/>
+            <path d="M760 120 L840 220 L920 280"/>
+            <path d="M520 110 L560 210 L640 290"/>
+          </g>
+          <!-- Nodes -->
+          <g fill="#0f766e">
+            <circle cx="40" cy="60" r="3" opacity="0.35"/>
+            <circle cx="160" cy="40" r="4" opacity="0.4"/>
+            <circle cx="280" cy="90" r="3" opacity="0.3"/>
+            <circle cx="400" cy="50" r="5" opacity="0.35"/>
+            <circle cx="520" cy="110" r="3.5" opacity="0.4"/>
+            <circle cx="640" cy="70" r="4" opacity="0.35"/>
+            <circle cx="760" cy="120" r="3" opacity="0.3"/>
+            <circle cx="900" cy="55" r="4.5" opacity="0.4"/>
+            <circle cx="1050" cy="100" r="3" opacity="0.3"/>
+            <circle cx="180" cy="140" r="3.5" opacity="0.35"/>
+            <circle cx="420" cy="150" r="4" opacity="0.4"/>
+            <circle cx="700" cy="160" r="3" opacity="0.3"/>
+            <circle cx="980" cy="170" r="4" opacity="0.35"/>
+            <circle cx="220" cy="240" r="3" opacity="0.3"/>
+            <circle cx="500" cy="230" r="3.5" opacity="0.35"/>
+            <circle cx="780" cy="250" r="4" opacity="0.4"/>
+            <circle cx="1080" cy="240" r="3" opacity="0.3"/>
+            <circle cx="1160" cy="40" r="3.5" opacity="0.35"/>
+          </g>
+          <g fill="#38bdf8">
+            <circle cx="300" cy="200" r="2.5" opacity="0.35"/>
+            <circle cx="560" cy="210" r="3" opacity="0.3"/>
+            <circle cx="840" cy="220" r="2.5" opacity="0.35"/>
+            <circle cx="360" cy="270" r="3" opacity="0.3"/>
+            <circle cx="640" cy="290" r="2.5" opacity="0.35"/>
+            <circle cx="920" cy="280" r="3" opacity="0.3"/>
+          </g>
+        </svg>
+      </div>
       <div class="page-header-inner">
         <div class="page-header-copy">
           <p class="eyebrow">Premium workplace course · Self-paced</p>
@@ -357,8 +421,8 @@
 <div class="toast" id="appToast" role="status" aria-live="polite" hidden></div>
 
 
-<script src="js/vendor/html2canvas.min.js?v=21"></script>
-<script src="js/modules-data.js?v=21"></script>
-<script src="js/app.js?v=21"></script>
+<script src="js/vendor/html2canvas.min.js?v=22"></script>
+<script src="js/modules-data.js?v=22"></script>
+<script src="js/app.js?v=22"></script>
 </body>
 </html>
