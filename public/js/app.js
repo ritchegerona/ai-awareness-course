@@ -78,9 +78,10 @@
     el.textContent = message;
     el.hidden = false;
     el.classList.add('visible');
+    el.classList.remove('celebrate', 'success');
     clearTimeout(toast._t);
     toast._t = setTimeout(function () {
-      el.classList.remove('visible');
+      el.classList.remove('visible', 'celebrate', 'success');
       el.hidden = true;
     }, ms || 3200);
   }
@@ -247,7 +248,7 @@
         '<li class="module-item' + (isActive ? ' active' : '') + (isCompleted ? ' completed' : '') + '" data-nav="' + idx + '">' +
         '<span class="num">' + (isCompleted ? '✓' : idx) + '</span>' +
         '<span class="info">' +
-        '<span class="title">' + mod.icon + ' ' + escapeHtml(mod.title) + '</span>' +
+        '<span class="title">' + escapeHtml(mod.title) + '</span>' +
         '<span class="duration">' + escapeHtml(mod.duration) + '</span>' +
         '</span></li>';
     });
@@ -289,6 +290,69 @@
     const text = document.getElementById('progressText');
     if (bar) bar.style.width = pct + '%';
     if (text) text.textContent = pct + '%';
+
+    // Hero progress ring + labels
+    const ring = document.getElementById('heroProgressRing');
+    const heroPct = document.getElementById('heroProgressPct');
+    const heroSub = document.getElementById('heroProgressSub');
+    const heroMods = document.getElementById('heroModulesDone');
+    const heroExam = document.getElementById('heroExamStatus');
+    const circumference = 2 * Math.PI * 40; // r=40
+    if (ring) {
+      ring.style.strokeDasharray = String(circumference);
+      ring.style.strokeDashoffset = String(circumference * (1 - pct / 100));
+    }
+    if (heroPct) heroPct.textContent = String(pct);
+    if (heroMods) heroMods.textContent = String(state.completedLessons.length);
+    if (heroExam) {
+      if (state.examTaken && state.examScore !== null && state.examScore >= PASS_EXAM) {
+        heroExam.textContent = 'Exam passed · ' + state.examScore + '/25';
+      } else if (state.examTaken) {
+        heroExam.textContent = 'Exam retake · ' + state.examScore + '/25';
+      } else if (state.completedLessons.length >= MODULES.length) {
+        heroExam.textContent = 'Exam unlocked';
+      } else {
+        heroExam.textContent = 'Exam locked';
+      }
+    }
+    if (heroSub) {
+      if (pct >= 100) heroSub.textContent = 'Course complete — claim your certificate';
+      else if (state.completedLessons.length === 0) heroSub.textContent = 'Start Module 1 to begin';
+      else if (state.completedLessons.length < MODULES.length) {
+        heroSub.textContent = (MODULES.length - state.completedLessons.length) + ' modules remaining';
+      } else {
+        heroSub.textContent = 'All modules done — take the final exam';
+      }
+    }
+  }
+
+  function celebrate(message) {
+    toast(message || 'Great work!', 3600);
+    const el = document.getElementById('appToast');
+    if (el) el.classList.add('celebrate');
+    setTimeout(function () {
+      if (el) el.classList.remove('celebrate');
+    }, 3600);
+
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const layer = document.createElement('div');
+    layer.className = 'confetti-layer';
+    const colors = ['#0f766e', '#2dd4bf', '#c9a227', '#0b1b3a', '#5eead4', '#f5e6a6'];
+    for (let i = 0; i < 36; i++) {
+      const p = document.createElement('i');
+      p.className = 'confetti-piece';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.background = colors[i % colors.length];
+      p.style.animationDuration = (1.4 + Math.random() * 1.4) + 's';
+      p.style.animationDelay = (Math.random() * 0.25) + 's';
+      p.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+      layer.appendChild(p);
+    }
+    document.body.appendChild(layer);
+    setTimeout(function () {
+      if (layer.parentNode) layer.parentNode.removeChild(layer);
+    }, 3200);
   }
 
   // ===== ABOUT AUTHOR MODAL =====
@@ -485,12 +549,16 @@
     state.quizScores[modIdx] = correct;
 
     if (correct >= PASS_QUIZ) {
-      if (state.completedLessons.indexOf(modIdx) === -1) {
+      const firstPass = state.completedLessons.indexOf(modIdx) === -1;
+      if (firstPass) {
         state.completedLessons.push(modIdx);
       }
       saveState();
       renderSidebar();
       renderDashboardCards();
+      if (firstPass) {
+        celebrate('Module ' + modIdx + ' complete');
+      }
     } else {
       saveState();
     }
@@ -671,6 +739,12 @@
     updateProgress();
     renderExam();
     renderSidebar();
+    renderDashboardCards();
+    if (correct >= PASS_EXAM) {
+      celebrate('Exam passed — claim your certificate');
+    } else {
+      toast('Not quite — review and retake when ready.');
+    }
   }
 
   function resetExam() {
@@ -933,17 +1007,23 @@
       const idx = i + 1;
       const done = state.completedLessons.indexOf(idx) !== -1;
       html +=
-        '<div class="dash-card" data-nav="' + idx + '" style="cursor:pointer;" role="button" tabindex="0">' +
-        '<div class="icon" style="display:flex;justify-content:space-between;align-items:center;">' +
-        '<span>' + mod.icon + '</span>' +
-        (done
-          ? '<span style="font-size:16px;color:var(--success);">✅</span>'
-          : '<span style="font-size:16px;color:var(--gray-300);">⏳</span>') +
+        '<div class="dash-card module-card interactive-card' + (done ? ' done' : '') + '" data-nav="' + idx + '" role="button" tabindex="0" style="--i:' + i + '">' +
+        '<div class="module-card-top">' +
+        '<div class="icon">' + (idx < 10 ? '0' + idx : idx) + '</div>' +
+        '<span class="mod-status">' + (done ? 'Completed' : 'Not started') + '</span>' +
         '</div>' +
-        '<h3>' + idx + '. ' + escapeHtml(mod.title) + '</h3>' +
-        '<p>' + escapeHtml(mod.subtitle) + ' · ' + escapeHtml(mod.duration) + '</p></div>';
+        '<h3>' + escapeHtml(mod.title) + '</h3>' +
+        '<p>' + escapeHtml(mod.subtitle) + ' · ' + escapeHtml(mod.duration) + '</p>' +
+        '<div class="mini-bar" aria-hidden="true"><i></i></div>' +
+        '</div>';
     });
     grid.innerHTML = html;
+    // animate mini-bars after paint
+    requestAnimationFrame(function () {
+      grid.querySelectorAll('.module-card.done .mini-bar > i').forEach(function (el) {
+        el.style.width = '100%';
+      });
+    });
     grid.querySelectorAll('[data-nav]').forEach(function (el) {
       const go = function () { navigateTo(parseInt(el.getAttribute('data-nav'), 10)); };
       el.addEventListener('click', go);
