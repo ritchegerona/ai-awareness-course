@@ -220,10 +220,25 @@
       '<span class="title">📝 Final Exam</span>' +
       '<span class="duration">30 min</span>' +
       '</span></li>';
+    html +=
+      '<li class="module-item about-item" data-nav="about" role="button">' +
+      '<span class="num">👤</span>' +
+      '<span class="info">' +
+      '<span class="title">About the Author</span>' +
+      '<span class="duration">Ritche Gerona</span>' +
+      '</span></li>';
     list.innerHTML = html;
     list.querySelectorAll('[data-nav]').forEach(function (el) {
       el.addEventListener('click', function () {
         const t = el.getAttribute('data-nav');
+        if (t === 'about') {
+          navigateTo(0);
+          setTimeout(function () {
+            const section = document.getElementById('aboutAuthor');
+            if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 50);
+          return;
+        }
         navigateTo(t === 'exam' ? 'exam' : parseInt(t, 10));
       });
     });

@@ -4,6 +4,21 @@
 
 Interactive, self-paced AI literacy course for office teams. Works on **Windows, macOS, and Linux** in any modern browser.
 
+## About the Author
+
+Ritche Gerona is an AI automation developer, technology enthusiast, and IT professional passionate about helping people work smarter through practical applications of artificial intelligence.
+
+With over 13 years of experience exploring Linux, automation, scripting, and modern technologies, Ritche has built a strong foundation in designing efficient workflows and solving real-world problems with technology. His work focuses on transforming repetitive, time-consuming tasks into streamlined, AI-powered processes that improve productivity for professionals, entrepreneurs, and organizations.
+
+Believing that AI should be accessible to everyone—not just programmers or data scientists—Ritche creates easy-to-follow guides, automation systems, prompt libraries, templates, and educational resources that empower readers to harness AI with confidence. His approach emphasizes practical implementation over theory, enabling users to achieve meaningful results quickly.
+
+Beyond AI automation, Ritche has extensive experience in IT operations, documentation management, process optimization, and digital productivity. He is a lifelong learner who continually explores emerging technologies, cybersecurity, machine learning, and workflow automation to stay at the forefront of innovation.
+
+Through every book, template, and automation toolkit he creates, Ritche's mission is simple: to make artificial intelligence practical, approachable, and valuable for everyone—helping people save time, reduce repetitive work, and unlock new opportunities in the AI-powered future.
+
+- **Location:** Pasig City, Philippines  
+- **GitHub:** [github.com/ritchegerona](https://github.com/ritchegerona)
+
 **For colleagues:** open the public link, learn, pass the exam, download a certificate. No install.
 
 **Live course (GitHub Pages):**  

@@ -237,6 +237,88 @@ body {
   margin-bottom: 12px;
 }
 .dash-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+
+/* ===== ABOUT THE AUTHOR ===== */
+.about-author {
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+.about-author h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.about-author-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--gray-200);
+  max-width: 820px;
+}
+.about-author-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.about-author-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  box-shadow: var(--shadow);
+}
+.about-author-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 4px;
+}
+.about-author-role {
+  font-size: 14px;
+  color: var(--gray-600);
+  margin-bottom: 8px;
+}
+.about-author-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--gray-500);
+}
+.about-author-meta a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+.about-author-meta a:hover { text-decoration: underline; }
+.about-author-body p {
+  font-size: 15px;
+  color: var(--gray-700);
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+.about-author-body p:last-child { margin-bottom: 0; }
+.module-item.about-item {
+  border-top: 1px solid rgba(255,255,255,.1);
+  margin-top: 8px;
+  padding-top: 16px;
+}
+@media (max-width: 768px) {
+  .about-author-card { padding: 20px; }
+  .about-author-header { flex-direction: column; align-items: center; text-align: center; }
+  .about-author-meta { justify-content: center; }
+}
 .dash-card p { font-size: 13px; color: var(--gray-500); }
 
 /* ===== MODULE VIEW ===== */
