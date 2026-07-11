@@ -125,9 +125,41 @@ body {
   padding: 28px 22px 20px;
   border-bottom: 1px solid var(--sidebar-border);
   position: relative;
+  overflow: hidden;
+  isolation: isolate;
   background: color-mix(in srgb, var(--sidebar-bg) 82%, transparent);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+}
+/* Author photo as soft background in upper sidebar (above author line) */
+.sidebar-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url("../images/ritche-gerona.png");
+  background-size: cover;
+  background-position: center 18%;
+  background-repeat: no-repeat;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.sidebar-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--sidebar-bg) 35%, transparent) 0%,
+    color-mix(in srgb, var(--sidebar-bg) 55%, transparent) 45%,
+    color-mix(in srgb, var(--sidebar-bg) 88%, transparent) 100%
+  );
+}
+.sidebar-header > * {
+  position: relative;
+  z-index: 1;
 }
 .sidebar-header h1 {
   font-size: 15px;
@@ -1957,6 +1989,18 @@ html[data-theme="dark"] .sidebar-mesh-svg {
 html[data-theme="dark"] .sidebar-header,
 html[data-theme="dark"] .sidebar-progress {
   background: color-mix(in srgb, var(--sidebar-bg) 78%, transparent);
+}
+html[data-theme="dark"] .sidebar-header::before {
+  opacity: 0.5;
+  filter: brightness(0.85) saturate(0.95);
+}
+html[data-theme="dark"] .sidebar-header::after {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--sidebar-bg) 45%, transparent) 0%,
+    color-mix(in srgb, var(--sidebar-bg) 65%, transparent) 50%,
+    color-mix(in srgb, var(--sidebar-bg) 92%, transparent) 100%
+  );
 }
 html[data-theme="dark"] .hero-progress-card,
 html[data-theme="dark"] .page-header .meta span {
