@@ -1023,12 +1023,12 @@ body {
 }
 .certificate .recipient {
   font-family: "Great Vibes", cursive;
-  font-size: 48px;
+  font-size: 58px;
   font-weight: 400;
   color: var(--cert-gold);
   line-height: 1.15;
-  margin: 4px 0 8px;
-  min-height: 54px;
+  margin: 6px 0 10px;
+  min-height: 64px;
   max-width: 100%;
   word-break: break-word;
 }
