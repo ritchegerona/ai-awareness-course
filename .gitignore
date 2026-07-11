@@ -10,3 +10,11 @@
 # Temp files
 tmp/
 temp/
+_extracted_full.js
+_app_raw.js
+_body.html
+
+# Node
+node_modules/
+npm-debug.log*
+.DS_Store
