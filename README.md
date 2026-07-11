@@ -155,3 +155,18 @@ ai-awareness-course.html     ← original single-file archive
 ## License
 
 Course by **Ritche Gerona**. All rights reserved unless otherwise stated.
+
+## Learner records (private — owner only)
+
+Learner names and progress are **not** stored in this public repository.
+
+Private roster (Completed / In progress):
+
+**https://github.com/ritchegerona/ai-awareness-course-records** (private)
+
+- File: `LEARNERS.md`
+- Only the repo owner (and invited collaborators) can view it
+- Learners use **Share Progress for Records** in the course to copy a report for you to paste into that file
+
+The course itself only saves progress in each person’s browser (`localStorage`). It cannot see all learners automatically.
+

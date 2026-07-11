@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Great+Vibes&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=10">
+<link rel="stylesheet" href="css/styles.css?v=11">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -119,9 +119,13 @@
       <h2>Version 1 Modules</h2>
       <div class="dashboard-grid" id="moduleCards"></div>
 
-      <div style="text-align:center;margin-top:28px;margin-bottom:24px;">
+      <div style="text-align:center;margin-top:28px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
         <button class="btn btn-primary btn-lg" onclick="navigateTo(1)">Start Learning</button>
+        <button type="button" class="btn btn-outline btn-lg" id="shareProgressBtn" onclick="shareProgressReport()">Share Progress for Records</button>
       </div>
+      <p style="text-align:center;font-size:13px;color:var(--text-muted);max-width:520px;margin:0 auto 24px;line-height:1.5;">
+        Progress is saved on your device. Use <strong>Share Progress for Records</strong> to copy a report you can send to the course owner for the private completion roster.
+      </p>
     </div>
 
     <!-- Module Views -->

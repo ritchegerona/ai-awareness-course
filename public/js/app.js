@@ -831,6 +831,91 @@
     }, 400);
   }
 
+  // ===== PROGRESS REPORT (for instructor private records) =====
+  function getProgressSnapshot() {
+    const totalModules = MODULES.length;
+    const doneModules = state.completedLessons.length;
+    const examPassed = state.examTaken && state.examScore !== null && state.examScore >= PASS_EXAM;
+    const allModulesDone = doneModules >= totalModules;
+    const completed = allModulesDone && examPassed;
+    // Progress: modules + exam as final unit (same idea as sidebar bar)
+    const totalUnits = totalModules + 1;
+    const doneUnits = doneModules + (state.examTaken ? 1 : 0);
+    const pct = Math.round((doneUnits / totalUnits) * 100);
+    let currentLabel = 'Dashboard';
+    if (state.currentModule === 'exam') currentLabel = 'Final Exam';
+    else if (state.currentModule === 'cert') currentLabel = 'Certificate';
+    else if (typeof state.currentModule === 'number' && state.currentModule >= 1) {
+      currentLabel = 'Module ' + state.currentModule;
+    }
+    return {
+      name: (state.learnerName || '').trim() || 'Unknown',
+      completed: completed,
+      status: completed ? 'completed' : (doneModules > 0 || state.examTaken ? 'in_progress' : 'not_started'),
+      modulesDone: doneModules,
+      totalModules: totalModules,
+      progressPct: pct,
+      currentLabel: currentLabel,
+      examTaken: state.examTaken,
+      examScore: state.examScore,
+      examLabel: state.examTaken && state.examScore !== null ? (state.examScore + '/25') : 'Not taken',
+      date: new Date().toISOString().slice(0, 10)
+    };
+  }
+
+  function buildProgressReportMarkdown() {
+    const s = getProgressSnapshot();
+    const lines = [];
+    lines.push('# AI Awareness V1 — Progress Report');
+    lines.push('');
+    lines.push('| Field | Value |');
+    lines.push('|-------|-------|');
+    lines.push('| Name | ' + s.name + ' |');
+    lines.push('| Status | ' + s.status + ' |');
+    lines.push('| Modules | ' + s.modulesDone + '/' + s.totalModules + ' |');
+    lines.push('| Progress | ' + s.progressPct + '% |');
+    lines.push('| Current | ' + s.currentLabel + ' |');
+    lines.push('| Exam | ' + s.examLabel + ' |');
+    lines.push('| Report date | ' + s.date + ' |');
+    lines.push('| Course | AI Awareness V1 Foundations |');
+    lines.push('');
+    if (s.completed) {
+      lines.push('## Suggested LEARNERS.md row (Completed)');
+      lines.push('');
+      lines.push('| Name | Started | Completed | Modules | Exam score | Certificate ID | Notes |');
+      lines.push('|------|---------|-----------|--------:|------------|----------------|-------|');
+      lines.push('| ' + s.name + ' | ' + s.date + ' | ' + s.date + ' | ' + s.modulesDone + '/' + s.totalModules + ' | ' + s.examLabel + ' | (from certificate) |  |');
+    } else {
+      lines.push('## Suggested LEARNERS.md row (In progress)');
+      lines.push('');
+      lines.push('| Name | Last update | Modules done | Progress % | Current module | Exam | Notes |');
+      lines.push('|------|-------------|-------------:|-----------:|----------------|------|-------|');
+      lines.push('| ' + s.name + ' | ' + s.date + ' | ' + s.modulesDone + '/' + s.totalModules + ' | ' + s.progressPct + '% | ' + s.currentLabel + ' | ' + s.examLabel + ' |  |');
+    }
+    lines.push('');
+    lines.push('_Send this report to the course owner so they can update the private records file._');
+    return lines.join('\n');
+  }
+
+  function shareProgressReport() {
+    if (!state.learnerName) {
+      showNamePrompt();
+      toast('Enter your name first, then share progress.');
+      return;
+    }
+    const report = buildProgressReportMarkdown();
+    const done = function () {
+      toast('Progress report copied. Paste it in an email or chat to the course owner.');
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(report).then(done).catch(function () {
+        window.prompt('Copy this progress report:', report);
+      });
+    } else {
+      window.prompt('Copy this progress report:', report);
+    }
+  }
+
   // ===== DASHBOARD =====
   function renderDashboardCards() {
     const grid = document.getElementById('moduleCards');
@@ -896,6 +981,7 @@
   window.showNamePrompt = showNamePrompt;
   window.openAuthorModal = openAuthorModal;
   window.closeAuthorModal = closeAuthorModal;
+  window.shareProgressReport = shareProgressReport;
   window.downloadCertificatePNG = downloadCertificatePNG;
   window.showCertificate = showCertificate;
   window.submitQuiz = submitQuiz;
