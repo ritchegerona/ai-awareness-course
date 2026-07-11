@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>AI Awareness Course — Ritche Gerona</title>
-<link rel="stylesheet" href="css/styles.css?v=5">
+<link rel="stylesheet" href="css/styles.css?v=6">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -48,7 +48,7 @@
   <!-- ===== MAIN ===== -->
   <main class="main-content">
 
-    <!-- Page Header + Author (author is part of the main home view, top of content) -->
+    <!-- Page Header — About Author is a clickable meta item next to Certificate -->
     <div class="page-header" id="pageHeader">
       <h1>🧠 AI Awareness for the Workplace</h1>
       <p>A practical, non-technical course to understand artificial intelligence — beyond the chatbot hype. Learn how AI works, how it's transforming industries, and how you can use it responsibly at work.</p>
@@ -57,33 +57,10 @@
         <span>⏱ ~4h 45min</span>
         <span>📝 Quizzes + Final Exam</span>
         <span>🎓 Certificate</span>
+        <button type="button" class="meta-link" id="aboutAuthorBtn" onclick="openAuthorModal()" aria-haspopup="dialog" aria-controls="authorModal">
+          👤 About Author
+        </button>
       </div>
-
-      <!-- ABOUT AUTHOR — always first content on the home screen (inside header band) -->
-      <section class="about-author about-in-header" id="aboutAuthor">
-        <div class="about-author-label">Course Author</div>
-        <h2>About the Author</h2>
-        <div class="about-author-card">
-          <div class="about-author-header">
-            <div class="about-author-avatar" aria-hidden="true">RG</div>
-            <div>
-              <h3>Ritche Gerona</h3>
-              <p class="about-author-role">AI Automation Developer · IT Professional · Course Author</p>
-              <p class="about-author-meta">
-                <span>📍 Pasig City, Philippines</span>
-                <a href="https://github.com/ritchegerona" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-              </p>
-            </div>
-          </div>
-          <div class="about-author-body">
-            <p>Ritche Gerona is an AI automation developer, technology enthusiast, and IT professional passionate about helping people work smarter through practical applications of artificial intelligence.</p>
-            <p>With over 13 years of experience exploring Linux, automation, scripting, and modern technologies, Ritche has built a strong foundation in designing efficient workflows and solving real-world problems with technology. His work focuses on transforming repetitive, time-consuming tasks into streamlined, AI-powered processes that improve productivity for professionals, entrepreneurs, and organizations.</p>
-            <p>Believing that AI should be accessible to everyone—not just programmers or data scientists—Ritche creates easy-to-follow guides, automation systems, prompt libraries, templates, and educational resources that empower readers to harness AI with confidence. His approach emphasizes practical implementation over theory, enabling users to achieve meaningful results quickly.</p>
-            <p>Beyond AI automation, Ritche has extensive experience in IT operations, documentation management, process optimization, and digital productivity. He is a lifelong learner who continually explores emerging technologies, cybersecurity, machine learning, and workflow automation to stay at the forefront of innovation.</p>
-            <p>Through every book, template, and automation toolkit he creates, Ritche's mission is simple: to make artificial intelligence practical, approachable, and valuable for everyone—helping people save time, reduce repetitive work, and unlock new opportunities in the AI-powered future.</p>
-          </div>
-        </div>
-      </section>
     </div>
 
     <!-- Dashboard (landing) -->
@@ -307,11 +284,37 @@
   </div>
 </div>
 
+<!-- About Author Modal -->
+<div class="modal-overlay" id="authorModal" role="dialog" aria-modal="true" aria-labelledby="authorModalTitle">
+  <div class="modal modal-author">
+    <button type="button" class="modal-close" onclick="closeAuthorModal()" aria-label="Close">×</button>
+    <div class="about-author-header modal-author-header">
+      <div class="about-author-avatar" aria-hidden="true">RG</div>
+      <div>
+        <h3 id="authorModalTitle">Ritche Gerona</h3>
+        <p class="about-author-role">AI Automation Developer · IT Professional · Course Author</p>
+        <p class="about-author-meta">
+          <span>📍 Pasig City, Philippines</span>
+          <a href="https://github.com/ritchegerona" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+        </p>
+      </div>
+    </div>
+    <div class="about-author-body modal-author-body">
+      <p>Ritche Gerona is an AI automation developer, technology enthusiast, and IT professional passionate about helping people work smarter through practical applications of artificial intelligence.</p>
+      <p>With over 13 years of experience exploring Linux, automation, scripting, and modern technologies, Ritche has built a strong foundation in designing efficient workflows and solving real-world problems with technology. His work focuses on transforming repetitive, time-consuming tasks into streamlined, AI-powered processes that improve productivity for professionals, entrepreneurs, and organizations.</p>
+      <p>Believing that AI should be accessible to everyone—not just programmers or data scientists—Ritche creates easy-to-follow guides, automation systems, prompt libraries, templates, and educational resources that empower readers to harness AI with confidence. His approach emphasizes practical implementation over theory, enabling users to achieve meaningful results quickly.</p>
+      <p>Beyond AI automation, Ritche has extensive experience in IT operations, documentation management, process optimization, and digital productivity. He is a lifelong learner who continually explores emerging technologies, cybersecurity, machine learning, and workflow automation to stay at the forefront of innovation.</p>
+      <p>Through every book, template, and automation toolkit he creates, Ritche's mission is simple: to make artificial intelligence practical, approachable, and valuable for everyone—helping people save time, reduce repetitive work, and unlock new opportunities in the AI-powered future.</p>
+    </div>
+    <button type="button" class="btn btn-primary btn-block" onclick="closeAuthorModal()">Close</button>
+  </div>
+</div>
+
 <div class="toast" id="appToast" role="status" aria-live="polite" hidden></div>
 
 
-<script src="js/vendor/html2canvas.min.js?v=5"></script>
-<script src="js/modules-data.js?v=5"></script>
-<script src="js/app.js?v=5"></script>
+<script src="js/vendor/html2canvas.min.js?v=6"></script>
+<script src="js/modules-data.js?v=6"></script>
+<script src="js/app.js?v=6"></script>
 </body>
 </html>

@@ -220,7 +220,7 @@
       '<span class="title">📝 Final Exam</span>' +
       '<span class="duration">30 min</span>' +
       '</span></li>';
-    // About author at top of list for visibility
+    // About author opens modal (same as header menu)
     const aboutHtml =
       '<li class="module-item about-item" data-nav="about" role="button">' +
       '<span class="num">👤</span>' +
@@ -233,11 +233,7 @@
       el.addEventListener('click', function () {
         const t = el.getAttribute('data-nav');
         if (t === 'about') {
-          navigateTo(0);
-          setTimeout(function () {
-            const section = document.getElementById('aboutAuthor');
-            if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 50);
+          openAuthorModal();
           return;
         }
         navigateTo(t === 'exam' ? 'exam' : parseInt(t, 10));
@@ -256,13 +252,30 @@
     if (text) text.textContent = pct + '%';
   }
 
-  // ===== NAVIGATION =====
-  function setAuthorVisible(show) {
-    const about = document.getElementById('aboutAuthor');
-    if (!about) return;
-    about.style.display = show ? 'block' : 'none';
+  // ===== ABOUT AUTHOR MODAL =====
+  function openAuthorModal() {
+    const modal = document.getElementById('authorModal');
+    if (modal) modal.classList.add('active');
+    closeSidebarIfMobile();
   }
 
+  function closeAuthorModal() {
+    const modal = document.getElementById('authorModal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  function initAuthorModal() {
+    const modal = document.getElementById('authorModal');
+    if (!modal) return;
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeAuthorModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeAuthorModal();
+    });
+  }
+
+  // ===== NAVIGATION =====
   function navigateTo(target) {
     if (!state.learnerName) {
       showNamePrompt();
@@ -270,6 +283,7 @@
     }
 
     closeSidebarIfMobile();
+    closeAuthorModal();
 
     const dashboard = document.getElementById('dashboard');
     const pageHeader = document.getElementById('pageHeader');
@@ -278,13 +292,11 @@
     document.querySelectorAll('.module-view').forEach(function (el) { el.classList.remove('active'); });
     if (certView) certView.classList.remove('active');
     if (pageHeader) pageHeader.style.display = 'block';
-    setAuthorVisible(false);
 
     if (target === 0 || target === '0') {
       state.currentModule = 0;
       if (dashboard) dashboard.style.display = 'block';
       if (pageHeader) pageHeader.style.display = 'block';
-      setAuthorVisible(true);
       renderSidebar();
       renderDashboardCards();
       saveState();
@@ -295,7 +307,6 @@
     if (target === 'exam') {
       state.currentModule = 'exam';
       if (pageHeader) pageHeader.style.display = 'none';
-      setAuthorVisible(false);
       renderExam();
       renderSidebar();
       saveState();
@@ -307,7 +318,6 @@
     if (isNaN(idx) || idx < 1 || idx > MODULES.length) return;
 
     state.currentModule = idx;
-    setAuthorVisible(false);
     renderModule(idx);
     renderSidebar();
     saveState();
@@ -647,7 +657,6 @@
     if (dashboard) dashboard.style.display = 'none';
     document.querySelectorAll('.module-view').forEach(function (el) { el.classList.remove('active'); });
     if (pageHeader) pageHeader.style.display = 'none';
-    setAuthorVisible(false);
     if (certView) certView.classList.add('active');
 
     const nameEl = document.getElementById('certName');
@@ -809,6 +818,8 @@
   window.navigateTo = navigateTo;
   window.saveName = saveName;
   window.showNamePrompt = showNamePrompt;
+  window.openAuthorModal = openAuthorModal;
+  window.closeAuthorModal = closeAuthorModal;
   window.downloadCertificatePNG = downloadCertificatePNG;
   window.showCertificate = showCertificate;
   window.submitQuiz = submitQuiz;
@@ -827,11 +838,10 @@
     loadState();
     initMobileNav();
     initNameModal();
+    initAuthorModal();
     renderSidebar();
     renderDashboardCards();
 
-    // Home screen: author block must be visible
-    setAuthorVisible(true);
     const dash = document.getElementById('dashboard');
     if (dash) dash.style.display = 'block';
 
