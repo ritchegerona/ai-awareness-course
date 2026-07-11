@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Great+Vibes&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=31">
+<link rel="stylesheet" href="css/styles.css?v=32">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -125,6 +125,75 @@
 
   <!-- ===== MAIN ===== -->
   <main class="main-content">
+    <!-- Full-area AI mesh (dashboard + modules) -->
+    <div class="main-mesh" aria-hidden="true">
+      <svg class="main-mesh-svg" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="mainMeshLine" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0f766e" stop-opacity="0.2"/>
+            <stop offset="50%" stop-color="#64748b" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.16"/>
+          </linearGradient>
+          <radialGradient id="mainGlowA" cx="12%" cy="18%" r="42%">
+            <stop offset="0%" stop-color="#0f766e" stop-opacity="0.1"/>
+            <stop offset="100%" stop-color="#0f766e" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="mainGlowB" cx="88%" cy="12%" r="38%">
+            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.08"/>
+            <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="mainGlowC" cx="70%" cy="85%" r="40%">
+            <stop offset="0%" stop-color="#0f766e" stop-opacity="0.07"/>
+            <stop offset="100%" stop-color="#0f766e" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="1400" height="900" fill="url(#mainGlowA)"/>
+        <rect width="1400" height="900" fill="url(#mainGlowB)"/>
+        <rect width="1400" height="900" fill="url(#mainGlowC)"/>
+        <g class="mesh-lines" stroke="url(#mainMeshLine)" stroke-width="1" fill="none">
+          <path d="M20 80 L180 40 L340 120 L520 60 L700 140 L880 50 L1060 130 L1240 70 L1380 110"/>
+          <path d="M40 260 L200 200 L380 280 L560 220 L740 300 L920 240 L1100 320 L1280 260"/>
+          <path d="M60 460 L220 400 L400 480 L580 420 L760 500 L940 440 L1120 520 L1300 460"/>
+          <path d="M30 660 L210 600 L390 680 L570 620 L750 700 L930 640 L1110 720 L1290 660"/>
+          <path d="M80 840 L260 780 L440 860 L620 800 L800 870 L980 810 L1160 880"/>
+          <path d="M180 40 L200 200 L220 400 L210 600 L260 780"/>
+          <path d="M520 60 L560 220 L580 420 L570 620 L620 800"/>
+          <path d="M880 50 L920 240 L940 440 L930 640 L980 810"/>
+          <path d="M1240 70 L1280 260 L1300 460 L1290 660"/>
+          <path d="M340 120 L380 280 L400 480 L390 680 L440 860"/>
+          <path d="M700 140 L740 300 L760 500 L750 700 L800 870"/>
+          <path d="M1060 130 L1100 320 L1120 520 L1110 720 L1160 880"/>
+        </g>
+        <g class="mesh-nodes" fill="#0f766e">
+          <circle class="node" cx="180" cy="40" r="4" opacity="0.35"/>
+          <circle class="node" cx="520" cy="60" r="5" opacity="0.4"/>
+          <circle class="node" cx="880" cy="50" r="4" opacity="0.35"/>
+          <circle class="node" cx="1240" cy="70" r="3.5" opacity="0.35"/>
+          <circle class="node" cx="200" cy="200" r="3.5" opacity="0.35"/>
+          <circle class="node" cx="560" cy="220" r="4" opacity="0.4"/>
+          <circle class="node" cx="920" cy="240" r="3.5" opacity="0.35"/>
+          <circle class="node" cx="220" cy="400" r="4" opacity="0.35"/>
+          <circle class="node" cx="580" cy="420" r="4.5" opacity="0.4"/>
+          <circle class="node" cx="940" cy="440" r="3.5" opacity="0.35"/>
+          <circle class="node" cx="210" cy="600" r="3.5" opacity="0.35"/>
+          <circle class="node" cx="570" cy="620" r="4" opacity="0.4"/>
+          <circle class="node" cx="930" cy="640" r="3.5" opacity="0.35"/>
+          <circle class="node" cx="260" cy="780" r="4" opacity="0.35"/>
+          <circle class="node" cx="620" cy="800" r="4" opacity="0.4"/>
+          <circle class="node" cx="980" cy="810" r="3.5" opacity="0.35"/>
+        </g>
+        <g class="mesh-nodes-alt" fill="#38bdf8">
+          <circle class="node" cx="380" cy="280" r="3" opacity="0.35"/>
+          <circle class="node" cx="740" cy="300" r="2.5" opacity="0.35"/>
+          <circle class="node" cx="400" cy="480" r="3" opacity="0.3"/>
+          <circle class="node" cx="760" cy="500" r="3" opacity="0.35"/>
+          <circle class="node" cx="390" cy="680" r="2.5" opacity="0.35"/>
+          <circle class="node" cx="750" cy="700" r="3" opacity="0.3"/>
+          <circle class="node" cx="1100" cy="320" r="3" opacity="0.35"/>
+          <circle class="node" cx="1120" cy="520" r="2.5" opacity="0.3"/>
+        </g>
+      </svg>
+    </div>
 
     <!-- Page Header -->
     <div class="page-header" id="pageHeader">
@@ -509,8 +578,8 @@
 <div class="toast" id="appToast" role="status" aria-live="polite" hidden></div>
 
 
-<script src="js/vendor/html2canvas.min.js?v=31"></script>
-<script src="js/modules-data.js?v=31"></script>
-<script src="js/app.js?v=31"></script>
+<script src="js/vendor/html2canvas.min.js?v=32"></script>
+<script src="js/modules-data.js?v=32"></script>
+<script src="js/app.js?v=32"></script>
 </body>
 </html>
