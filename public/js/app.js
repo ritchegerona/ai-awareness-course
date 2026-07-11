@@ -257,6 +257,12 @@
   }
 
   // ===== NAVIGATION =====
+  function setAuthorVisible(show) {
+    const about = document.getElementById('aboutAuthor');
+    if (!about) return;
+    about.style.display = show ? 'block' : 'none';
+  }
+
   function navigateTo(target) {
     if (!state.learnerName) {
       showNamePrompt();
@@ -272,26 +278,24 @@
     document.querySelectorAll('.module-view').forEach(function (el) { el.classList.remove('active'); });
     if (certView) certView.classList.remove('active');
     if (pageHeader) pageHeader.style.display = 'block';
+    setAuthorVisible(false);
 
     if (target === 0 || target === '0') {
       state.currentModule = 0;
       if (dashboard) dashboard.style.display = 'block';
       if (pageHeader) pageHeader.style.display = 'block';
+      setAuthorVisible(true);
       renderSidebar();
       renderDashboardCards();
       saveState();
       window.scrollTo(0, 0);
-      // Keep author block in view at top of dashboard
-      setTimeout(function () {
-        const about = document.getElementById('aboutAuthor');
-        if (about) about.scrollIntoView({ behavior: 'auto', block: 'start' });
-      }, 0);
       return;
     }
 
     if (target === 'exam') {
       state.currentModule = 'exam';
       if (pageHeader) pageHeader.style.display = 'none';
+      setAuthorVisible(false);
       renderExam();
       renderSidebar();
       saveState();
@@ -303,6 +307,7 @@
     if (isNaN(idx) || idx < 1 || idx > MODULES.length) return;
 
     state.currentModule = idx;
+    setAuthorVisible(false);
     renderModule(idx);
     renderSidebar();
     saveState();
@@ -642,6 +647,7 @@
     if (dashboard) dashboard.style.display = 'none';
     document.querySelectorAll('.module-view').forEach(function (el) { el.classList.remove('active'); });
     if (pageHeader) pageHeader.style.display = 'none';
+    setAuthorVisible(false);
     if (certView) certView.classList.add('active');
 
     const nameEl = document.getElementById('certName');
@@ -781,18 +787,22 @@
   }
 
   // ===== SERVICE WORKER =====
+  // Clear old SW caches so users always see the latest author/content updates.
+  // (Previous SW was serving a stale course without the author section.)
   function registerServiceWorker() {
-    if (!('serviceWorker' in navigator)) return;
-    // Only over http(s), not file://
     if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js').then(function (reg) {
-        // Force update check so author/content fixes reach users promptly
-        if (reg && reg.update) reg.update();
-      }).catch(function () {
-        /* offline SW optional — ignore */
-      });
-    });
+
+    // Unregister any existing service workers and wipe caches
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (reg) { reg.unregister(); });
+      }).catch(function () { /* ignore */ });
+    }
+    if (typeof caches !== 'undefined' && caches.keys) {
+      caches.keys().then(function (keys) {
+        keys.forEach(function (k) { caches.delete(k); });
+      }).catch(function () { /* ignore */ });
+    }
   }
 
   // ===== GLOBALS (onclick in HTML shell) =====
@@ -819,6 +829,11 @@
     initNameModal();
     renderSidebar();
     renderDashboardCards();
+
+    // Home screen: author block must be visible
+    setAuthorVisible(true);
+    const dash = document.getElementById('dashboard');
+    if (dash) dash.style.display = 'block';
 
     if (!state.learnerName) {
       showNamePrompt();

@@ -9,10 +9,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>AI Awareness Course — Ritche Gerona</title>
-<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/styles.css?v=5">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 </head>
 <body>
 <div class="app-container" id="app">
@@ -47,7 +48,7 @@
   <!-- ===== MAIN ===== -->
   <main class="main-content">
 
-    <!-- Page Header (compact on home so author shows at top of dashboard) -->
+    <!-- Page Header + Author (author is part of the main home view, top of content) -->
     <div class="page-header" id="pageHeader">
       <h1>🧠 AI Awareness for the Workplace</h1>
       <p>A practical, non-technical course to understand artificial intelligence — beyond the chatbot hype. Learn how AI works, how it's transforming industries, and how you can use it responsibly at work.</p>
@@ -57,11 +58,9 @@
         <span>📝 Quizzes + Final Exam</span>
         <span>🎓 Certificate</span>
       </div>
-    </div>
 
-    <!-- Dashboard (landing) — Author is the first block -->
-    <div class="dashboard" id="dashboard">
-      <section class="about-author about-author-top" id="aboutAuthor">
+      <!-- ABOUT AUTHOR — always first content on the home screen (inside header band) -->
+      <section class="about-author about-in-header" id="aboutAuthor">
         <div class="about-author-label">Course Author</div>
         <h2>About the Author</h2>
         <div class="about-author-card">
@@ -85,7 +84,10 @@
           </div>
         </div>
       </section>
+    </div>
 
+    <!-- Dashboard (landing) -->
+    <div class="dashboard" id="dashboard">
       <h2>Course Overview</h2>
       <div class="dashboard-grid">
         <div class="dash-card">
@@ -308,8 +310,8 @@
 <div class="toast" id="appToast" role="status" aria-live="polite" hidden></div>
 
 
-<script src="js/vendor/html2canvas.min.js"></script>
-<script src="js/modules-data.js"></script>
-<script src="js/app.js"></script>
+<script src="js/vendor/html2canvas.min.js?v=5"></script>
+<script src="js/modules-data.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
 </body>
 </html>

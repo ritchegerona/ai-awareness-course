@@ -230,13 +230,16 @@ body {
 }
 .dash-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
 
-/* ===== ABOUT THE AUTHOR (dashboard top) ===== */
+/* ===== ABOUT THE AUTHOR (home / main dashboard top) ===== */
 .about-author {
-  margin-top: 0;
-  margin-bottom: 40px;
+  display: block !important;
+  margin-top: 24px;
+  margin-bottom: 0;
+  text-align: left;
 }
-.about-author-top {
-  order: -1;
+.about-in-header {
+  margin-top: 28px;
+  padding-top: 8px;
 }
 .about-author-label {
   display: inline-block;
@@ -244,8 +247,8 @@ body {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--primary);
-  background: var(--primary-light);
+  color: #1d4ed8;
+  background: #dbeafe;
   padding: 4px 10px;
   border-radius: 999px;
   margin-bottom: 10px;
@@ -254,16 +257,16 @@ body {
   font-size: 26px;
   font-weight: 800;
   margin-bottom: 16px;
-  color: var(--gray-900);
+  color: #0f172a !important;
 }
 .about-author-card {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  background: #ffffff !important;
   border-radius: var(--radius);
   padding: 28px 32px;
-  box-shadow: var(--shadow-lg);
-  border: 2px solid #93c5fd;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  border: 3px solid #60a5fa;
   max-width: 100%;
-  outline: 1px solid rgba(37, 99, 235, 0.15);
+  color: #334155;
 }
 .about-author-header {
   display: flex;
