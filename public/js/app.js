@@ -4,9 +4,40 @@
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'aiCourseState';
+  const STORAGE_KEY = 'aiCourseState_v1';
   const PASS_QUIZ = 4;
   const PASS_EXAM = 18;
+
+  /** Course series catalog — V1 active; V2/V3 reserved for future topics */
+  const COURSE_CATALOG = {
+    v1: {
+      id: 'v1',
+      version: 1,
+      level: 'Foundations',
+      title: 'AI Awareness for the Workplace',
+      audience: 'General / new to AI',
+      status: 'active',
+      duration: '~4h 45min',
+      modules: 12
+    },
+    v2: {
+      id: 'v2',
+      version: 2,
+      level: 'Intermediate',
+      title: 'AI Awareness — Intermediate',
+      audience: 'Practitioners ready for deeper tools & workflows',
+      status: 'coming_soon'
+    },
+    v3: {
+      id: 'v3',
+      version: 3,
+      level: 'Advanced',
+      title: 'AI Awareness — Advanced',
+      audience: 'Specialists & strategic implementers',
+      status: 'planned'
+    }
+  };
+  const ACTIVE_COURSE = COURSE_CATALOG.v1;
 
   const defaultState = () => ({
     currentModule: 0,
@@ -215,15 +246,15 @@
     const isExamActive = state.currentModule === 'exam';
     html +=
       '<li class="module-item exam-item' + (isExamActive ? ' active' : '') + '" data-nav="exam">' +
-      '<span class="num">' + (state.examTaken ? '✓' : '★') + '</span>' +
+      '<span class="num">' + (state.examTaken ? '✓' : 'E') + '</span>' +
       '<span class="info">' +
-      '<span class="title">📝 Final Exam</span>' +
-      '<span class="duration">30 min</span>' +
+      '<span class="title">Final Exam</span>' +
+      '<span class="duration">30 min · V' + ACTIVE_COURSE.version + '</span>' +
       '</span></li>';
     // About author opens modal (same as header menu)
     const aboutHtml =
       '<li class="module-item about-item" data-nav="about" role="button">' +
-      '<span class="num">👤</span>' +
+      '<span class="num">i</span>' +
       '<span class="info">' +
       '<span class="title">About the Author</span>' +
       '<span class="duration">Ritche Gerona</span>' +
@@ -369,21 +400,21 @@
       '<p class="subtitle">' + escapeHtml(mod.subtitle) + ' · ' + escapeHtml(mod.duration) + '</p>' +
       mod.content +
       '<div class="quiz-section" id="quiz' + idx + '">' +
-      '<h3>📝 Module ' + idx + ' Quiz</h3>' +
-      '<p style="color:var(--gray-500);margin-bottom:16px;">Test your understanding of this module. You need ' + PASS_QUIZ + '/5 correct to pass.</p>' +
+      '<h3>Module ' + idx + ' Quiz</h3>' +
+      '<p style="color:var(--text-muted);margin-bottom:16px;">Test your understanding of this module. You need ' + PASS_QUIZ + '/5 correct to pass.</p>' +
       questionsHtml +
       '<div class="quiz-actions">' +
-      '<button type="button" class="btn btn-primary" data-submit-quiz="' + idx + '">✅ Submit Quiz</button>' +
-      '<button type="button" class="btn btn-outline" data-reset-quiz="' + idx + '">🔄 Reset</button>' +
+      '<button type="button" class="btn btn-primary" data-submit-quiz="' + idx + '">Submit Quiz</button>' +
+      '<button type="button" class="btn btn-outline" data-reset-quiz="' + idx + '">Reset</button>' +
       '</div>' +
       '<div class="quiz-score" id="quizScore' + idx + '" style="display:' + (isCompleted ? 'block' : 'none') + '">' +
       '<div class="score-num">' + (score !== undefined ? score : '—') + '/5</div>' +
       '<div class="score-label">' + scoreLabel + '</div>' +
       '</div></div></div>' +
       '<div class="section-nav">' +
-      '<button type="button" class="btn btn-outline" data-nav-to="' + (idx > 1 ? idx - 1 : 0) + '"' + (idx <= 1 ? ' disabled' : '') + '>◀ Previous</button>' +
+      '<button type="button" class="btn btn-outline" data-nav-to="' + (idx > 1 ? idx - 1 : 0) + '"' + (idx <= 1 ? ' disabled' : '') + '>Previous</button>' +
       '<button type="button" class="btn btn-primary" data-nav-to="' + (idx < MODULES.length ? idx + 1 : 'exam') + '">' +
-      (idx < MODULES.length ? 'Next Module ▶' : 'Go to Final Exam ▶') +
+      (idx < MODULES.length ? 'Next Module →' : 'Go to Final Exam →') +
       '</button></div>';
 
     view.querySelectorAll('[data-select-option]').forEach(function (el) {
@@ -506,7 +537,7 @@
 
     let html =
       '<div class="exam-header">' +
-      '<h3>📝 Final Exam</h3>' +
+      '<h3>Final Exam</h3>' +
       '<p>Test your overall understanding of AI in the workplace.</p>' +
       '<div class="exam-requirements">' +
       '<span class="req ' + (allModulesDone ? 'met' : 'unmet') + '">' +
@@ -519,7 +550,7 @@
       html +=
         '<div class="quiz-score" style="margin-bottom:24px;">' +
         '<div class="score-num">' + state.examScore + '/25</div>' +
-        '<div class="score-label">🎉 Exam Passed! You can now claim your certificate.</div></div>';
+        '<div class="score-label">Exam passed. You can claim your certificate.</div></div>';
     } else if (state.examTaken && !passed) {
       html +=
         '<div class="quiz-score" style="margin-bottom:24px;">' +
@@ -543,7 +574,7 @@
       html +=
         '<div style="text-align:center;margin-top:24px;">' +
         '<button type="button" class="btn btn-outline" id="btnRetakeExam">🔄 Retake Exam</button>' +
-        (passed ? '<button type="button" class="btn btn-success btn-lg" id="btnClaimCert" style="margin-left:12px;">🎓 Claim Certificate</button>' : '') +
+        (passed ? '<button type="button" class="btn btn-success btn-lg" id="btnClaimCert" style="margin-left:12px;">Claim Certificate</button>' : '') +
         '</div>';
     } else if (!allModulesDone) {
       html +=
@@ -552,7 +583,7 @@
         '<div style="text-align:center;margin-top:20px;">' +
         '<button type="button" class="btn btn-primary btn-lg" id="btnGoModule1">▶ Go to Module 1</button></div>';
     } else {
-      html += '<p style="margin-bottom:20px;color:var(--gray-500);">Answer all 25 questions. You need at least ' + PASS_EXAM + '/25 to pass.</p>';
+      html += '<p style="margin-bottom:20px;color:var(--text-muted);">Answer all 25 questions. You need at least ' + PASS_EXAM + '/25 to pass.</p>';
       EXAM_QUESTIONS.forEach(function (q, qi) {
         const optionsHtml = q.options.map(function (opt, oi) {
           return (
@@ -662,6 +693,7 @@
     const nameEl = document.getElementById('certName');
     const dateEl = document.getElementById('certDate');
     const scoreEl = document.getElementById('certScore');
+    const verEl = document.getElementById('certVersionLabel');
     if (nameEl) nameEl.textContent = state.learnerName;
     if (dateEl) {
       dateEl.textContent = new Date().toLocaleDateString('en-US', {
@@ -669,6 +701,9 @@
       });
     }
     if (scoreEl) scoreEl.textContent = state.examScore + '/25';
+    if (verEl) {
+      verEl.textContent = 'Version ' + ACTIVE_COURSE.version + ' · ' + ACTIVE_COURSE.level;
+    }
     saveState();
     closeSidebarIfMobile();
     window.scrollTo(0, 0);
@@ -713,7 +748,7 @@
     cert.style.width = LANDSCAPE_W + 'px';
     cert.style.height = LANDSCAPE_H + 'px';
 
-    const filename = 'AI-Awareness-Certificate-' + safeFileName(state.learnerName) + '.png';
+    const filename = 'AI-Awareness-V' + ACTIVE_COURSE.version + '-Certificate-' + safeFileName(state.learnerName) + '.png';
     const btn = document.querySelector('.cert-actions .btn-primary');
     if (btn) {
       btn.disabled = true;
@@ -723,7 +758,7 @@
 
     html2canvas(cert, {
       scale: 2,
-      backgroundColor: '#080c24',
+      backgroundColor: '#fafaf9',
       allowTaint: false,
       useCORS: true,
       logging: false,
@@ -733,7 +768,7 @@
       restoreCertStyles(cert, glow, origW, origH);
       if (btn) {
         btn.disabled = false;
-        btn.textContent = btn.dataset.prevText || '📥 Download Certificate (PNG)';
+        btn.textContent = btn.dataset.prevText || 'Download Certificate (PNG)';
       }
       if (canvas.toBlob) {
         canvas.toBlob(function (blob) {
@@ -756,7 +791,7 @@
       restoreCertStyles(cert, glow, origW, origH);
       if (btn) {
         btn.disabled = false;
-        btn.textContent = btn.dataset.prevText || '📥 Download Certificate (PNG)';
+        btn.textContent = btn.dataset.prevText || 'Download Certificate (PNG)';
       }
       toast('PNG export failed. Opening print dialog…');
       window.print();
@@ -814,6 +849,14 @@
     }
   }
 
+  function applyCourseVersionLabels() {
+    const pill = document.getElementById('headerVersionPill');
+    const badge = document.getElementById('sidebarVersionBadge');
+    const label = 'Version ' + ACTIVE_COURSE.version + ' · ' + ACTIVE_COURSE.level;
+    if (pill) pill.textContent = label;
+    if (badge) badge.textContent = label;
+  }
+
   // ===== GLOBALS (onclick in HTML shell) =====
   window.navigateTo = navigateTo;
   window.saveName = saveName;
@@ -836,6 +879,7 @@
       return;
     }
     loadState();
+    applyCourseVersionLabels();
     initMobileNav();
     initNameModal();
     initAuthorModal();
