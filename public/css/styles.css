@@ -923,9 +923,9 @@ body {
 
 .cert-skills {
   position: absolute;
-  left: 32px;
-  top: 200px;
-  width: 210px;
+  left: 30px;
+  top: 196px;
+  width: 220px;
   list-style: none;
   z-index: 4;
   padding: 0;
@@ -934,49 +934,49 @@ body {
 .cert-skills::before {
   content: "Course Modules";
   display: block;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--cert-gold);
-  margin-bottom: 10px;
+  margin-bottom: 11px;
   padding-left: 2px;
 }
 .cert-skills li {
   display: flex;
   gap: 8px;
   align-items: flex-start;
-  margin-bottom: 7px;
+  margin-bottom: 7.5px;
 }
 .cert-skills .sk-num {
   flex-shrink: 0;
-  min-width: 18px;
-  font-size: 9px;
+  min-width: 20px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--cert-gold);
-  line-height: 1.35;
+  line-height: 1.4;
   font-variant-numeric: tabular-nums;
 }
 .cert-skills .sk-ico {
   color: var(--cert-gold);
-  font-size: 11px;
-  line-height: 1.35;
+  font-size: 12px;
+  line-height: 1.4;
   flex-shrink: 0;
 }
 .cert-skills strong {
   display: block;
-  font-size: 9.5px;
+  font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   text-transform: none;
   color: var(--cert-navy);
-  line-height: 1.3;
+  line-height: 1.35;
 }
 .cert-skills em {
   display: block;
   font-style: normal;
-  font-size: 9px;
+  font-size: 10px;
   color: var(--cert-muted);
   line-height: 1.3;
   margin-top: 1px;
