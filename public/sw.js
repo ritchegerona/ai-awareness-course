@@ -1,5 +1,5 @@
 /* AI Awareness Course — offline cache (works on GitHub project Pages subpaths) */
-const CACHE_NAME = 'ai-course-v4';
+const CACHE_NAME = 'ai-course-v7';
 
 // Resolve assets relative to this service worker’s directory
 // e.g. https://user.github.io/ai-awareness-course/sw.js → base includes /ai-awareness-course/
@@ -15,7 +15,8 @@ const ASSET_PATHS = [
   'manifest.webmanifest',
   'favicon.svg',
   'icons/icon-192.png',
-  'icons/icon-512.png'
+  'icons/icon-512.png',
+  'images/ritche-gerona.png'
 ];
 
 function assetUrl(rel) {
