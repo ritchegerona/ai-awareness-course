@@ -649,16 +649,19 @@
           '</p></div>';
       });
       html +=
-        '<div style="text-align:center;margin-top:24px;">' +
-        '<button type="button" class="btn btn-outline" id="btnRetakeExam">🔄 Retake Exam</button>' +
-        (passed ? '<button type="button" class="btn btn-success btn-lg" id="btnClaimCert" style="margin-left:12px;">Claim Certificate</button>' : '') +
+        '<div class="section-nav" style="justify-content:center;border-top:none;padding-top:8px;">' +
+        '<button type="button" class="btn btn-outline" id="btnRetakeExam">Retake Exam</button>' +
+        (passed ? '<button type="button" class="btn btn-success btn-lg" id="btnClaimCert">Claim Certificate</button>' : '') +
+        '<button type="button" class="btn btn-outline btn-dashboard" id="btnExamDashboard">Main Dashboard</button>' +
         '</div>';
     } else if (!allModulesDone) {
       html +=
-        '<div class="callout warning"><strong>🔒 Locked</strong>' +
+        '<div class="callout warning"><strong>Locked</strong>' +
         '<p>Please complete all ' + MODULES.length + ' modules first before taking the final exam.</p></div>' +
-        '<div style="text-align:center;margin-top:20px;">' +
-        '<button type="button" class="btn btn-primary btn-lg" id="btnGoModule1">▶ Go to Module 1</button></div>';
+        '<div class="section-nav" style="justify-content:center;border-top:none;padding-top:8px;">' +
+        '<button type="button" class="btn btn-primary btn-lg" id="btnGoModule1">Go to Module 1</button>' +
+        '<button type="button" class="btn btn-outline btn-dashboard" id="btnExamDashboard">Main Dashboard</button>' +
+        '</div>';
     } else {
       html += '<p style="margin-bottom:20px;color:var(--text-muted);">Answer all 25 questions. You need at least ' + PASS_EXAM + '/25 to pass.</p>';
       EXAM_QUESTIONS.forEach(function (q, qi) {
@@ -677,7 +680,9 @@
       });
       html +=
         '<div class="quiz-actions">' +
-        '<button type="button" class="btn btn-primary btn-lg" id="btnSubmitExam">✅ Submit Exam</button></div>';
+        '<button type="button" class="btn btn-primary btn-lg" id="btnSubmitExam">Submit Exam</button>' +
+        '<button type="button" class="btn btn-outline btn-dashboard" id="btnExamDashboard">Main Dashboard</button>' +
+        '</div>';
     }
 
     view.innerHTML = html;
@@ -691,6 +696,8 @@
     if (go1) go1.addEventListener('click', function () { navigateTo(1); });
     const submit = document.getElementById('btnSubmitExam');
     if (submit) submit.addEventListener('click', submitExam);
+    const examDash = document.getElementById('btnExamDashboard');
+    if (examDash) examDash.addEventListener('click', function () { navigateTo(0); });
     view.querySelectorAll('[data-exam-option]').forEach(function (el) {
       el.addEventListener('click', function () {
         const parts = el.getAttribute('data-exam-option').split(',');
