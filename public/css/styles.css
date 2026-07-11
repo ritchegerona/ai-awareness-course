@@ -201,6 +201,7 @@ body {
 
 /* ===== DASHBOARD (landing) ===== */
 .dashboard {
+  display: block;
   padding: 28px 48px 40px;
 }
 .dashboard > h2 {
@@ -263,9 +264,6 @@ body {
   border: 2px solid #93c5fd;
   max-width: 100%;
   outline: 1px solid rgba(37, 99, 235, 0.15);
-}
-.dashboard {
-  display: block;
 }
 .about-author-header {
   display: flex;
