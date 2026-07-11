@@ -1,17 +1,15 @@
 # Share with office mates
 
-## Live course link
+## Live course
 
 **Author:** Ritche Gerona  
 **Version:** 1.0.0 · Foundations  
 
-**https://ritchegerona.github.io/ai-awareness-course/**
-
-Colleagues need **only a browser** — no install, no login.
+https://ritchegerona.github.io/ai-awareness-course/
 
 ---
 
-## Message you can paste (Teams / Slack / email)
+## Message (Teams / Slack / email)
 
 ```
 Hi team,
@@ -32,32 +30,18 @@ Tips:
 • Use the same computer/browser if you continue later
 • Avoid private/incognito mode if you want progress to stick
 • Works on Windows, Mac, and Linux
+• Dark mode is available in the left sidebar
 
 Questions? Reply here.
 ```
 
 ---
 
-## What each person gets
+## Troubleshooting
 
-| Item | Detail |
-|------|--------|
-| Learning | 12 modules on AI at work (Foundations) |
-| Quizzes | 5 questions each (pass 4/5) |
-| Final exam | 25 questions (pass 18/25) |
-| Certificate | Personalized navy/gold PNG (V1 Foundations) |
-
-Progress is stored **only on their device**. Your private roster is:
-
-https://github.com/ritchegerona/ai-awareness-course-records (private)
-
----
-
-## If someone has trouble
-
-| Problem | What to try |
-|---------|-------------|
-| Link won’t open | Confirm full `https://…` URL |
-| Progress lost | Different browser/device, or cleared site data |
-| Certificate won’t download | Allow downloads; try another browser |
-| Page looks broken | Hard refresh (Ctrl+Shift+R / Cmd+Shift+R) |
+| Problem | Try this |
+|---------|----------|
+| Link won’t open | Use the full `https://…` URL |
+| Progress lost | Different browser/device, or site data cleared |
+| Certificate download fails | Allow downloads; try another browser |
+| Old UI | Hard refresh (Ctrl+Shift+R / Cmd+Shift+R) |

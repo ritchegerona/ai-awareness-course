@@ -1322,8 +1322,7 @@
     init();
   }
 
-  // Final release marker
   try {
-    console.info('AI Awareness Course V1.0.0 Foundations — ready');
+    console.info('AI Awareness Course V1.0.0 Foundations — production ready');
   } catch (_) { /* ignore */ }
 })();
