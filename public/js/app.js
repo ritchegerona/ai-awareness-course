@@ -485,6 +485,7 @@
       '</div></div></div>' +
       '<div class="section-nav">' +
       '<button type="button" class="btn btn-outline" data-nav-to="' + (idx > 1 ? idx - 1 : 0) + '"' + (idx <= 1 ? ' disabled' : '') + '>Previous</button>' +
+      '<button type="button" class="btn btn-outline btn-dashboard" data-nav-to="0">Main Dashboard</button>' +
       '<button type="button" class="btn btn-primary" data-nav-to="' + (idx < MODULES.length ? idx + 1 : 'exam') + '">' +
       (idx < MODULES.length ? 'Next Module →' : 'Go to Final Exam →') +
       '</button></div>';

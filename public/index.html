@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Great+Vibes&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=19">
+<link rel="stylesheet" href="css/styles.css?v=20">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -26,6 +26,7 @@
     <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="sidebar">☰</button>
     <div class="mobile-topbar-title">AI Awareness</div>
     <span class="mobile-topbar-spacer"></span>
+    <button type="button" class="mobile-home-btn" id="mobileHomeBtn" onclick="navigateTo(0)" aria-label="Main dashboard">Dashboard</button>
   </div>
   <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
 
@@ -37,7 +38,7 @@
       <p>Workplace AI literacy series</p>
       <p class="course-author">By <strong>Ritche Gerona</strong></p>
       <div class="version-badge" id="sidebarVersionBadge">Version 1 · Foundations</div>
-      <button type="button" class="btn-home" onclick="navigateTo(0)">Course Home</button>
+      <button type="button" class="btn-home" onclick="navigateTo(0)">Main Dashboard</button>
     </div>
     <ul class="module-list" id="moduleList"></ul>
     <div class="sidebar-progress">
@@ -65,6 +66,9 @@
             <span>~4h 45min</span>
             <span>Quizzes + Final Exam</span>
             <span>Certificate</span>
+            <button type="button" class="meta-link meta-link-dashboard" id="dashboardBtn" onclick="navigateTo(0)" title="Return to main dashboard">
+              ← Main Dashboard
+            </button>
             <button type="button" class="meta-link" id="aboutAuthorBtn" onclick="openAuthorModal()" aria-haspopup="dialog" aria-controls="authorModal">
               About Author
             </button>
@@ -300,7 +304,7 @@
       </div>
       <div class="cert-actions">
         <button class="btn btn-primary" onclick="downloadCertificatePNG()">Download Certificate (PNG)</button>
-        <button class="btn btn-outline" onclick="navigateTo(0)">Back to Course</button>
+        <button class="btn btn-outline btn-dashboard" onclick="navigateTo(0)">Main Dashboard</button>
       </div>
     </div>
 
@@ -353,8 +357,8 @@
 <div class="toast" id="appToast" role="status" aria-live="polite" hidden></div>
 
 
-<script src="js/vendor/html2canvas.min.js?v=19"></script>
-<script src="js/modules-data.js?v=19"></script>
-<script src="js/app.js?v=19"></script>
+<script src="js/vendor/html2canvas.min.js?v=20"></script>
+<script src="js/modules-data.js?v=20"></script>
+<script src="js/app.js?v=20"></script>
 </body>
 </html>
