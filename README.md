@@ -1,117 +1,55 @@
 # AI Awareness for the Workplace
 
-**Author: Ritche Gerona**
+**Version 1.0.0 · Foundations**  
+**Author:** [Ritche Gerona](https://github.com/ritchegerona)
 
-Interactive, self-paced AI literacy course for office teams. Works on **Windows, macOS, and Linux** in any modern browser.
+Self-paced AI literacy course for office teams. Runs in any modern browser on **Windows, macOS, and Linux** — no install.
 
-## About the Author
+**Live course:** https://ritchegerona.github.io/ai-awareness-course/  
+**Certificate preview:** https://ritchegerona.github.io/ai-awareness-course/certificate-preview.html  
 
-Ritche Gerona is an AI automation developer, technology enthusiast, and IT professional passionate about helping people work smarter through practical applications of artificial intelligence.
-
-With over 13 years of experience exploring Linux, automation, scripting, and modern technologies, Ritche has built a strong foundation in designing efficient workflows and solving real-world problems with technology. His work focuses on transforming repetitive, time-consuming tasks into streamlined, AI-powered processes that improve productivity for professionals, entrepreneurs, and organizations.
-
-Believing that AI should be accessible to everyone—not just programmers or data scientists—Ritche creates easy-to-follow guides, automation systems, prompt libraries, templates, and educational resources that empower readers to harness AI with confidence. His approach emphasizes practical implementation over theory, enabling users to achieve meaningful results quickly.
-
-Beyond AI automation, Ritche has extensive experience in IT operations, documentation management, process optimization, and digital productivity. He is a lifelong learner who continually explores emerging technologies, cybersecurity, machine learning, and workflow automation to stay at the forefront of innovation.
-
-Through every book, template, and automation toolkit he creates, Ritche's mission is simple: to make artificial intelligence practical, approachable, and valuable for everyone—helping people save time, reduce repetitive work, and unlock new opportunities in the AI-powered future.
-
-- **Location:** Pasig City, Philippines  
-- **GitHub:** [github.com/ritchegerona](https://github.com/ritchegerona)
-
-**For colleagues:** open the public link, learn, pass the exam, download a certificate. No install.
-
-**Live course (GitHub Pages):**  
-**https://ritchegerona.github.io/ai-awareness-course/**
-
-See **[SHARE.md](./SHARE.md)** for a ready-to-paste Teams/email message.
+Share text for Teams/email: [SHARE.md](./SHARE.md)
 
 ---
 
-## Recommended setup (office sharing)
+## For learners
 
-| Role | What they use |
-|------|----------------|
-| **You (owner)** | This GitHub repo + optional local `node server.js` for testing |
-| **Office mates** | Public URL only (browser) |
-| **Backend** | None — progress stays in each person’s browser |
-| **Google Drive** | Not used for hosting |
+1. Open the live course link  
+2. Enter your name (shown on the certificate)  
+3. Complete **12 modules** (quiz pass: **4/5**)  
+4. Pass the **final exam** (**18/25**)  
+5. Download your **certificate PNG**  
 
-```text
-GitHub repo  →  GitHub Pages  →  share one HTTPS link  →  team takes the course
-```
+Optional: **Share Progress for Records** on the home page to copy a report for the instructor.
 
----
-
-## For office mates (learners)
-
-1. Open: https://ritchegerona.github.io/ai-awareness-course/
-2. Enter your name (appears on the certificate)
-3. Complete **12 modules** (quiz pass mark: **4/5**)
-4. Pass the **final exam** (**18/25**)
-5. Download your **certificate PNG**
-
-**Tips**
-
-- Use the **same browser and computer** to keep progress  
-- Avoid private/incognito if you want progress saved  
-- ~4–5 hours total; pause anytime  
+**Tips:** use the same browser/device to keep progress; avoid private/incognito mode if you want progress saved.
 
 ---
 
-## Course content
+## Course series roadmap
 
-| Feature | Detail |
-|--------|--------|
-| 12 modules | Workplace AI literacy |
-| Quizzes | 5 questions each — pass with 4/5 |
-| Final exam | 25 questions — pass with 18/25 |
-| Certificate | Personalized PNG (offline-capable after first load) |
-| Progress | Browser `localStorage` (per person, per device) |
+| Version | Level | Status |
+|---------|--------|--------|
+| **V1** | Foundations (new to AI) | **Available now** |
+| **V2** | Intermediate | Coming soon |
+| **V3** | Advanced | Planned |
 
-Modules: What is AI? · Beyond Chatbots · How AI Works · Workplace · Generative AI & LLMs · Prompting · Ethics · Future · Privacy · Tools · Communication · Critical Thinking · Final Exam.
+V1 modules: What is AI? · AI Beyond Chatbots · How AI Works · AI in the Workplace · Generative AI & LLMs · Prompting & Practical Use · AI Ethics & Responsibility · The Future of AI · Data Privacy & AI · AI Tools Hands-On Guide · AI & Communication at Work · Critical Thinking with AI · Final Exam.
 
 ---
 
-## Publish for the office (you — once)
+## Learner records (private — owner only)
 
-Repo is set up for **GitHub Actions → Pages** (deploys the `public/` folder).
+Names and progress are **not** in this public repo.
 
-### 1. Push this project to GitHub
-
-Remote expected: `https://github.com/ritchegerona/ai-awareness-course.git`
-
-```bash
-git add .
-git commit -m "Publish AI Awareness Course web app for GitHub Pages"
-git push -u origin master
-```
-
-(Use `main` if that is your default branch.)
-
-### 2. Enable GitHub Pages (Actions)
-
-1. Open the repo on GitHub → **Settings** → **Pages**  
-2. Under **Build and deployment** → **Source**, choose **GitHub Actions**  
-3. Open the **Actions** tab and confirm workflow **Deploy to GitHub Pages** succeeded  
-4. After a minute or two, open:  
-   **https://ritchegerona.github.io/ai-awareness-course/**
-
-### 3. Share
-
-Copy the blurb from [SHARE.md](./SHARE.md) into Teams, Slack, or email.
+Private roster: **https://github.com/ritchegerona/ai-awareness-course-records** (private)  
+→ `LEARNERS.md` (Completed / In progress)
 
 ---
 
-## Local testing (developers / you only)
+## Local testing (owner / developers)
 
-Colleagues do **not** need this.
-
-| Dependency | Included? |
-|------------|-----------|
-| Node.js 16+ | Install once from [nodejs.org](https://nodejs.org/) |
-| npm packages | **None** — `server.js` uses Node built-ins only |
-| html2canvas | Yes — `public/js/vendor/` |
+Requires **Node.js 16+** (no npm packages).
 
 ```bash
 npm start
@@ -119,7 +57,6 @@ npm start
 ```
 
 Open http://127.0.0.1:3000  
-
 Windows: `start.bat` · macOS/Linux: `./start.sh`
 
 ---
@@ -127,46 +64,28 @@ Windows: `start.bat` · macOS/Linux: `./start.sh`
 ## Project layout
 
 ```
-public/                      ← deployed to GitHub Pages
-  index.html
-  css/ styles.css
-  js/  app.js, modules-data.js, vendor/html2canvas.min.js
-  sw.js, manifest.webmanifest
+public/                 ← deployed to GitHub Pages
+  index.html            ← course app
+  certificate-preview.html
+  css/styles.css
+  js/app.js
+  js/modules-data.js
+  js/vendor/html2canvas.min.js
+  images/ritche-gerona.png
 .github/workflows/deploy-pages.yml
-server.js                    ← local static server only
-SHARE.md                     ← message for the office
-ai-awareness-course.html     ← original single-file archive
+server.js               ← local static server only
 ```
 
 ---
 
-## Troubleshooting
+## About the Author
 
-| Issue | Fix |
-|-------|-----|
-| Pages 404 | Settings → Pages → Source = **GitHub Actions**; wait for green workflow |
-| Old content after update | Hard refresh; wait for Actions deploy to finish |
-| Progress lost | Different browser/device, or site data cleared |
-| Certificate export fails | Allow downloads; try another browser; Print as fallback |
-| Port 3000 busy (local) | `PORT=3001 node server.js` |
+Ritche Gerona is an AI automation developer, technology enthusiast, and IT professional passionate about helping people work smarter through practical applications of artificial intelligence. Based in Pasig City, Philippines.
+
+Full bio is available in the course via **About Author**.
 
 ---
 
 ## License
 
 Course by **Ritche Gerona**. All rights reserved unless otherwise stated.
-
-## Learner records (private — owner only)
-
-Learner names and progress are **not** stored in this public repository.
-
-Private roster (Completed / In progress):
-
-**https://github.com/ritchegerona/ai-awareness-course-records** (private)
-
-- File: `LEARNERS.md`
-- Only the repo owner (and invited collaborators) can view it
-- Learners use **Share Progress for Records** in the course to copy a report for you to paste into that file
-
-The course itself only saves progress in each person’s browser (`localStorage`). It cannot see all learners automatically.
-

@@ -117,7 +117,15 @@
 
   function loadState() {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      let saved = localStorage.getItem(STORAGE_KEY);
+      // Migrate older progress key if present
+      if (!saved) {
+        const legacy = localStorage.getItem('aiCourseState');
+        if (legacy) {
+          saved = legacy;
+          try { localStorage.setItem(STORAGE_KEY, legacy); } catch (_) { /* ignore */ }
+        }
+      }
       if (saved) {
         state = normalizeState(JSON.parse(saved));
       }
@@ -1020,4 +1028,9 @@
   } else {
     init();
   }
+
+  // Final release marker
+  try {
+    console.info('AI Awareness Course V1.0.0 Foundations — ready');
+  } catch (_) { /* ignore */ }
 })();
