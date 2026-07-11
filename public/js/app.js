@@ -220,14 +220,15 @@
       '<span class="title">📝 Final Exam</span>' +
       '<span class="duration">30 min</span>' +
       '</span></li>';
-    html +=
+    // About author at top of list for visibility
+    const aboutHtml =
       '<li class="module-item about-item" data-nav="about" role="button">' +
       '<span class="num">👤</span>' +
       '<span class="info">' +
       '<span class="title">About the Author</span>' +
       '<span class="duration">Ritche Gerona</span>' +
       '</span></li>';
-    list.innerHTML = html;
+    list.innerHTML = aboutHtml + html;
     list.querySelectorAll('[data-nav]').forEach(function (el) {
       el.addEventListener('click', function () {
         const t = el.getAttribute('data-nav');
@@ -780,7 +781,10 @@
     // Only over http(s), not file://
     if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js').catch(function () {
+      navigator.serviceWorker.register('sw.js').then(function (reg) {
+        // Force update check so author/content fixes reach users promptly
+        if (reg && reg.update) reg.update();
+      }).catch(function () {
         /* offline SW optional — ignore */
       });
     });
