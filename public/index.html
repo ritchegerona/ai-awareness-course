@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Great+Vibes&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=24">
+<link rel="stylesheet" href="css/styles.css?v=25">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -44,22 +44,83 @@
 
   <!-- ===== SIDEBAR ===== -->
   <nav class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close menu">×</button>
-      <h1><span class="brand-mark">RG</span>AI Awareness</h1>
-      <p>Workplace AI literacy series</p>
-      <p class="course-author">By <strong>Ritche Gerona</strong></p>
-      <div class="version-badge" id="sidebarVersionBadge">Version 1 · Foundations</div>
-      <button type="button" class="btn-home" onclick="navigateTo(0)">Main Dashboard</button>
-      <button type="button" class="theme-toggle sidebar-theme" id="themeToggleSidebar" onclick="toggleTheme()">Switch to dark mode</button>
+    <!-- Abstract AI mesh (same language as main header) -->
+    <div class="sidebar-mesh" aria-hidden="true">
+      <svg class="sidebar-mesh-svg" viewBox="0 0 280 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sideMeshLine" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0f766e" stop-opacity="0.28"/>
+            <stop offset="50%" stop-color="#64748b" stop-opacity="0.16"/>
+            <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.22"/>
+          </linearGradient>
+          <radialGradient id="sideGlowA" cx="20%" cy="10%" r="50%">
+            <stop offset="0%" stop-color="#0f766e" stop-opacity="0.14"/>
+            <stop offset="100%" stop-color="#0f766e" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="sideGlowB" cx="90%" cy="80%" r="45%">
+            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.1"/>
+            <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="280" height="900" fill="url(#sideGlowA)"/>
+        <rect width="280" height="900" fill="url(#sideGlowB)"/>
+        <g class="mesh-lines" stroke="url(#sideMeshLine)" stroke-width="1" fill="none">
+          <path d="M20 40 L80 90 L40 160 L120 210 L60 280 L140 340 L50 420 L130 480 L70 560 L150 640 L40 720 L110 800 L60 870"/>
+          <path d="M200 30 L240 100 L180 170 L250 250 L190 330 L260 410 L200 500 L250 590 L180 680 L240 770 L200 860"/>
+          <path d="M80 90 L180 170 L140 340 L200 500 L150 640 L240 770"/>
+          <path d="M120 210 L190 330 L130 480 L200 500 L110 800"/>
+          <path d="M40 160 L80 90 L200 30"/>
+          <path d="M60 280 L140 340 L260 410"/>
+          <path d="M50 420 L130 480 L250 590"/>
+          <path d="M70 560 L150 640 L240 770"/>
+        </g>
+        <g class="mesh-nodes" fill="#0f766e">
+          <circle class="node n1" cx="20" cy="40" r="3" opacity="0.4"/>
+          <circle class="node n2" cx="80" cy="90" r="4" opacity="0.45"/>
+          <circle class="node n3" cx="40" cy="160" r="3" opacity="0.35"/>
+          <circle class="node n4" cx="120" cy="210" r="4.5" opacity="0.4"/>
+          <circle class="node n5" cx="60" cy="280" r="3" opacity="0.35"/>
+          <circle class="node n6" cx="140" cy="340" r="4" opacity="0.45"/>
+          <circle class="node n7" cx="50" cy="420" r="3" opacity="0.35"/>
+          <circle class="node n8" cx="130" cy="480" r="4" opacity="0.4"/>
+          <circle class="node n9" cx="70" cy="560" r="3.5" opacity="0.4"/>
+          <circle class="node n10" cx="150" cy="640" r="4" opacity="0.45"/>
+          <circle class="node n11" cx="40" cy="720" r="3" opacity="0.35"/>
+          <circle class="node n12" cx="110" cy="800" r="4" opacity="0.4"/>
+          <circle class="node n13" cx="200" cy="30" r="3" opacity="0.35"/>
+          <circle class="node n14" cx="240" cy="100" r="3.5" opacity="0.4"/>
+          <circle class="node n15" cx="180" cy="170" r="3" opacity="0.35"/>
+          <circle class="node n16" cx="250" cy="250" r="4" opacity="0.4"/>
+          <circle class="node n17" cx="260" cy="410" r="3.5" opacity="0.4"/>
+          <circle class="node n18" cx="250" cy="590" r="3" opacity="0.35"/>
+          <circle class="node n19" cx="240" cy="770" r="4" opacity="0.4"/>
+        </g>
+        <g class="mesh-nodes-alt" fill="#38bdf8">
+          <circle class="node n20" cx="190" cy="330" r="2.5" opacity="0.4"/>
+          <circle class="node n21" cx="200" cy="500" r="3" opacity="0.35"/>
+          <circle class="node n22" cx="180" cy="680" r="2.5" opacity="0.4"/>
+          <circle class="node n23" cx="200" cy="860" r="3" opacity="0.35"/>
+        </g>
+      </svg>
     </div>
-    <ul class="module-list" id="moduleList"></ul>
-    <div class="sidebar-progress">
-      <div class="label">
-        <span>Course Progress</span>
-        <span id="progressText">0%</span>
+    <div class="sidebar-content">
+      <div class="sidebar-header">
+        <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close menu">×</button>
+        <h1><span class="brand-mark">RG</span>AI Awareness</h1>
+        <p>Workplace AI literacy series</p>
+        <p class="course-author">By <strong>Ritche Gerona</strong></p>
+        <div class="version-badge" id="sidebarVersionBadge">Version 1 · Foundations</div>
+        <button type="button" class="btn-home" onclick="navigateTo(0)">Main Dashboard</button>
+        <button type="button" class="theme-toggle sidebar-theme" id="themeToggleSidebar" onclick="toggleTheme()">Switch to dark mode</button>
       </div>
-      <div class="bar"><div class="bar-fill" id="progressBar" style="width:0%"></div></div>
+      <ul class="module-list" id="moduleList"></ul>
+      <div class="sidebar-progress">
+        <div class="label">
+          <span>Course Progress</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="bar"><div class="bar-fill" id="progressBar" style="width:0%"></div></div>
+      </div>
     </div>
   </nav>
 
@@ -449,8 +510,8 @@
 <div class="toast" id="appToast" role="status" aria-live="polite" hidden></div>
 
 
-<script src="js/vendor/html2canvas.min.js?v=24"></script>
-<script src="js/modules-data.js?v=24"></script>
-<script src="js/app.js?v=24"></script>
+<script src="js/vendor/html2canvas.min.js?v=25"></script>
+<script src="js/modules-data.js?v=25"></script>
+<script src="js/app.js?v=25"></script>
 </body>
 </html>

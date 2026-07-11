@@ -72,15 +72,62 @@ body {
   position: fixed;
   inset: 0 auto 0 0;
   z-index: 100;
-  overflow-y: auto;
+  overflow: hidden;
   border-right: 1px solid var(--sidebar-border);
   transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.sidebar-mesh {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.sidebar-mesh-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  min-height: 100%;
+  animation: meshDrift 22s ease-in-out infinite alternate;
+  transform-origin: center center;
+}
+.sidebar-mesh .mesh-lines {
+  stroke-dasharray: 6 10;
+  animation: meshDash 18s linear infinite;
+}
+.sidebar-mesh .node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nodePulse 3.2s ease-in-out infinite;
+}
+.sidebar-mesh .n2 { animation-delay: 0.2s; }
+.sidebar-mesh .n4 { animation-delay: 0.5s; }
+.sidebar-mesh .n6 { animation-delay: 0.8s; }
+.sidebar-mesh .n8 { animation-delay: 1.1s; }
+.sidebar-mesh .n10 { animation-delay: 1.4s; }
+.sidebar-mesh .n12 { animation-delay: 0.3s; }
+.sidebar-mesh .n14 { animation-delay: 0.7s; }
+.sidebar-mesh .n16 { animation-delay: 1.0s; }
+.sidebar-mesh .n20 { animation-delay: 0.4s; }
+.sidebar-mesh .n21 { animation-delay: 0.9s; }
+.sidebar-mesh .n22 { animation-delay: 1.3s; }
+.sidebar-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100%;
+  overflow-y: auto;
+  background: transparent;
 }
 .sidebar-header {
   padding: 28px 22px 20px;
   border-bottom: 1px solid var(--sidebar-border);
   position: relative;
-  background: var(--sidebar-bg);
+  background: color-mix(in srgb, var(--sidebar-bg) 82%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .sidebar-header h1 {
   font-size: 15px;
@@ -153,7 +200,7 @@ body {
   cursor: pointer;
 }
 
-.module-list { flex: 1; padding: 12px 0 16px; list-style: none; }
+.module-list { flex: 1; padding: 12px 0 16px; list-style: none; background: transparent; }
 .module-item {
   display: flex;
   align-items: center;
@@ -236,7 +283,23 @@ body {
 .sidebar-progress {
   padding: 16px 20px 20px;
   border-top: 1px solid var(--sidebar-border);
-  background: var(--sidebar-bg);
+  background: color-mix(in srgb, var(--sidebar-bg) 88%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  margin-top: auto;
+}
+.module-list {
+  flex: 1;
+  background: transparent;
+}
+.module-item {
+  background: transparent;
+}
+.module-item:hover {
+  background: color-mix(in srgb, var(--sidebar-hover) 90%, transparent);
+}
+.module-item.active {
+  background: color-mix(in srgb, var(--sidebar-active) 92%, transparent);
 }
 .sidebar-progress .label {
   display: flex;
@@ -289,10 +352,37 @@ body {
   height: 100%;
   display: block;
   opacity: 1;
+  animation: meshDrift 20s ease-in-out infinite alternate;
+  transform-origin: 70% 40%;
 }
+.header-mesh-svg path {
+  stroke-dasharray: 8 12;
+  animation: meshDash 16s linear infinite;
+}
+.header-mesh-svg circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nodePulse 3.6s ease-in-out infinite;
+}
+.header-mesh-svg circle:nth-child(odd) { animation-delay: 0.4s; }
+.header-mesh-svg circle:nth-child(3n) { animation-delay: 0.9s; }
 .page-header-inner {
   position: relative;
   z-index: 1;
+}
+
+@keyframes meshDrift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-1.5%, 1%, 0) scale(1.03); }
+  100% { transform: translate3d(1.2%, -0.8%, 0) scale(1.02); }
+}
+@keyframes meshDash {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -120; }
+}
+@keyframes nodePulse {
+  0%, 100% { opacity: 0.28; transform: scale(0.92); }
+  50% { opacity: 0.7; transform: scale(1.18); }
 }
 .page-header h1 {
   font-size: 28px;
@@ -1796,6 +1886,14 @@ body.sidebar-open { overflow: hidden; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  .header-mesh-svg,
+  .sidebar-mesh-svg,
+  .sidebar-mesh .mesh-lines,
+  .sidebar-mesh .node,
+  .header-mesh-svg path,
+  .header-mesh-svg circle {
+    animation: none !important;
+  }
 }
 
 /* ===== THEME + BOLD PASS V1.2 ===== */
@@ -1848,7 +1946,18 @@ html[data-theme="dark"] .page-header h1 {
   background-clip: text;
   color: transparent;
 }
-html[data-theme="dark"] .header-mesh-svg { opacity: 0.55; filter: brightness(1.2); }
+html[data-theme="dark"] .header-mesh-svg {
+  opacity: 0.7;
+  filter: brightness(1.35) saturate(1.1);
+}
+html[data-theme="dark"] .sidebar-mesh-svg {
+  opacity: 0.75;
+  filter: brightness(1.4) saturate(1.15);
+}
+html[data-theme="dark"] .sidebar-header,
+html[data-theme="dark"] .sidebar-progress {
+  background: color-mix(in srgb, var(--sidebar-bg) 78%, transparent);
+}
 html[data-theme="dark"] .hero-progress-card,
 html[data-theme="dark"] .page-header .meta span {
   background: rgba(22, 22, 22, 0.9);
