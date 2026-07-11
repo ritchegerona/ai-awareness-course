@@ -281,6 +281,11 @@
       renderDashboardCards();
       saveState();
       window.scrollTo(0, 0);
+      // Keep author block in view at top of dashboard
+      setTimeout(function () {
+        const about = document.getElementById('aboutAuthor');
+        if (about) about.scrollIntoView({ behavior: 'auto', block: 'start' });
+      }, 0);
       return;
     }
 

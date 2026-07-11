@@ -1,5 +1,5 @@
 /* AI Awareness Course — offline cache (works on GitHub project Pages subpaths) */
-const CACHE_NAME = 'ai-course-v3';
+const CACHE_NAME = 'ai-course-v4';
 
 // Resolve assets relative to this service worker’s directory
 // e.g. https://user.github.io/ai-awareness-course/sw.js → base includes /ai-awareness-course/
