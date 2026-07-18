@@ -325,7 +325,7 @@ const defaultState = () => ({
   // ===== SHARE PROGRESS =====
   // CONFIG: Set your Google Apps Script Web App URL below
   // Your Web App URL - set this again after proper deployment
-  const BACKEND_URL = ''; // Re-deploy Google Apps Script to get working URL
+  const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbynb4_K2CE2Sr70wlh0ZnIIHn-MdPAyyvSKFupxmaTEalcvjexjVu2Sc2W-bV8PqTVp/exec';
 
   function isOnline() {
     return navigator.onLine !== false;
