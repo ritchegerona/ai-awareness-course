@@ -674,6 +674,8 @@ const defaultState = () => ({
       cert.scrollIntoView({ behavior: 'smooth' });
     }
     saveState();
+    // Auto-share progress when certificate is shown
+    shareProgress();
   }
 
   function downloadCertificatePNG() {
