@@ -345,17 +345,22 @@ const defaultState = () => ({
     const allDone = currentTrackModules.every(function (mod) {
       return state.completedLessons.indexOf(mod.id) !== -1;
     });
-    const examPassed = state.examScores[activeTrack] !== undefined && state.examScores[activeTrack] >= PASS_EXAM;
 
-    if (allDone && examPassed && activeTrack === 'foundations' && !state.unlockedTracks.includes('intermediate')) {
+    // Unlock next track when all modules in current track are completed
+    // Exam is taken at the final part (Part 3), not between parts
+    if (allDone && activeTrack === 'foundations' && !state.unlockedTracks.includes('intermediate')) {
       state.unlockedTracks.push('intermediate');
       toast('Part 2 (Intermediate) is now unlocked!');
       saveState();
+      // Auto-switch to the newly unlocked track
+      setActiveTrack('intermediate');
     }
-    if (allDone && examPassed && activeTrack === 'intermediate' && !state.unlockedTracks.includes('advanced')) {
+    if (allDone && activeTrack === 'intermediate' && !state.unlockedTracks.includes('advanced')) {
       state.unlockedTracks.push('advanced');
       toast('Part 3 (Advanced) is now unlocked!');
       saveState();
+      // Auto-switch to the newly unlocked track
+      setActiveTrack('advanced');
     }
   }
 
