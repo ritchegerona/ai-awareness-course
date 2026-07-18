@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Progress Board — AI Awareness V1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#1c1917; --muted:#57534e; --line:#e7e5e4; --accent:#0f766e; --bg:#f7f7f5; --ok:#047857; --warn:#b45309; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 64px; }
+  h1 { font-size: 24px; letter-spacing: -0.03em; margin: 0 0 6px; }
+  .sub { color: var(--muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
+  .notice { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+  @media (max-width: 700px) { .cards { grid-template-columns: 1fr; } }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .card .n { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; }
+  .card .l { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+  h2 { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 28px 0 12px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-size: 13px; }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; }
+  th { background: #fafaf9; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+  .badge.done { background: #ecfdf5; color: var(--ok); }
+  .badge.prog { background: #fffbeb; color: var(--warn); }
+  .badge.none { background: #f5f5f4; color: #78716c; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+  button, .btn { font: inherit; font-size: 13px; font-weight: 600; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); background: #1a1a1a; color: #fff; cursor: pointer; text-decoration: none; }
+  .btn.secondary { background: #fff; color: var(--ink); }
+  textarea { width: 100%; min-height: 120px; border: 1px solid var(--line); border-radius: 10px; padding: 12px; font: inherit; font-size: 13px; }
+  .hint { font-size: 12px; color: #78716c; margin-top: 8px; line-height: 1.45; }
+  empty { display: block; padding: 20px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Admin progress board</h1>
+    <p class="sub">Local instructor view for AI Awareness V1 Foundations. Data stays in <strong>this browser only</strong> unless you also update your private GitHub records repo.</p>
+
+    <div class="notice">
+      <strong>Privacy note:</strong> This page is on the public site URL, but the roster is stored only in <em>your</em> browser localStorage (not visible to learners). For a permanent private file, paste rows into
+      <a href="https://github.com/ritchegerona/ai-awareness-course-records" target="_blank" rel="noopener">ai-awareness-course-records</a> → <code>LEARNERS.md</code>.
+    </div>
+
+    <div class="cards">
+      <div class="card"><div class="n" id="statTotal">0</div><div class="l">Total learners</div></div>
+      <div class="card"><div class="n" id="statDone">0</div><div class="l">Completed</div></div>
+      <div class="card"><div class="n" id="statProg">0</div><div class="l">In progress</div></div>
+    </div>
+
+    <div class="row">
+      <button type="button" class="btn secondary" onclick="location.href='./index.html'">Open course</button>
+      <button type="button" class="btn secondary" onclick="exportMarkdown()">Copy LEARNERS.md snippet</button>
+      <button type="button" class="btn secondary" onclick="clearRoster()">Clear local roster</button>
+      <button type="button" onclick="window.print()">Print board</button>
+    </div>
+
+    <h2>Completed</h2>
+    <table><thead><tr><th>Name</th><th>Modules</th><th>Progress</th><th>Exam</th><th>Date</th></tr></thead><tbody id="doneBody"></tbody></table>
+
+    <h2>In progress</h2>
+    <table><thead><tr><th>Name</th><th>Modules</th><th>Progress</th><th>Current</th><th>Exam</th><th>Date</th></tr></thead><tbody id="progBody"></tbody></table>
+
+    <h2>Import a progress report</h2>
+    <p class="sub">Paste a report from a learner’s <strong>Share Progress for Records</strong> button (or a markdown table row).</p>
+    <textarea id="importBox" placeholder="Paste progress report markdown here..."></textarea>
+    <div class="row">
+      <button type="button" onclick="importReport()">Add / update from paste</button>
+    </div>
+    <p class="hint">Tip: When you (or a learner on this same computer) clicks Share Progress in the course, their snapshot is also saved here automatically.</p>
+  </div>
+  <script>
+    var KEY = 'aiCourseAdminRoster_unified';
+
+    function loadRoster() {
+      try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+      catch (e) { return []; }
+    }
+    function saveRoster(list) {
+      localStorage.setItem(KEY, JSON.stringify(list));
+      render();
+    }
+    function badge(status) {
+      if (status === 'completed') return '<span class="badge done">completed</span>';
+      if (status === 'in_progress') return '<span class="badge prog">in progress</span>';
+      return '<span class="badge none">' + (status || 'unknown') + '</span>';
+    }
+    function render() {
+      var list = loadRoster();
+      var done = list.filter(function (r) { return r.status === 'completed'; });
+      var prog = list.filter(function (r) { return r.status !== 'completed'; });
+      document.getElementById('statTotal').textContent = list.length;
+      document.getElementById('statDone').textContent = done.length;
+      document.getElementById('statProg').textContent = prog.length;
+
+      document.getElementById('doneBody').innerHTML = done.length ? done.map(function (r) {
+        return '<tr><td>' + esc(r.name) + '</td><td>' + esc(r.modules) + '</td><td>' + esc(r.progress) + '</td><td>' + esc(r.exam) + '</td><td>' + esc(r.date) + '</td></tr>';
+      }).join('') : '<tr><td colspan="5"><empty>No completed learners yet.</empty></td></tr>';
+
+      document.getElementById('progBody').innerHTML = prog.length ? prog.map(function (r) {
+        return '<tr><td>' + esc(r.name) + ' ' + badge(r.status) + '</td><td>' + esc(r.modules) + '</td><td>' + esc(r.progress) + '</td><td>' + esc(r.current || '—') + '</td><td>' + esc(r.exam) + '</td><td>' + esc(r.date) + '</td></tr>';
+      }).join('') : '<tr><td colspan="6"><empty>No in-progress learners yet.</empty></td></tr>';
+    }
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function upsert(entry) {
+      var list = loadRoster();
+      var i = list.findIndex(function (r) { return r.name === entry.name; });
+      if (i >= 0) list[i] = entry; else list.push(entry);
+      saveRoster(list);
+    }
+    function importReport() {
+      var text = document.getElementById('importBox').value || '';
+      var name = (text.match(/\|\s*Name\s*\|\s*([^|]+)\|/i) || text.match(/\|\s*([^|]+)\s*\|\s*(completed|in_progress|not_started)/i) || [])[1];
+      var status = (text.match(/\|\s*Status\s*\|\s*([^|]+)\|/i) || [])[1];
+      var modules = (text.match(/\|\s*Modules\s*\|\s*([^|]+)\|/i) || [])[1];
+      var progress = (text.match(/\|\s*Progress\s*\|\s*([^|]+)\|/i) || [])[1];
+      var exam = (text.match(/\|\s*Exam\s*\|\s*([^|]+)\|/i) || [])[1];
+      var date = (text.match(/\|\s*Report date\s*\|\s*([^|]+)\|/i) || text.match(/\|\s*Last update\s*\|\s*([^|]+)\|/i) || [])[1];
+      var current = (text.match(/\|\s*Current\s*\|\s*([^|]+)\|/i) || text.match(/\|\s*Current module\s*\|\s*([^|]+)\|/i) || [])[1];
+
+      // Table row formats from suggested LEARNERS.md rows
+      if (!name) {
+        var row = text.trim().split('\n').filter(function (l) { return l.indexOf('|') === 0 && l.indexOf('---') === -1 && !/Name|Field/i.test(l); })[0];
+        if (row) {
+          var cells = row.split('|').map(function (c) { return c.trim(); }).filter(Boolean);
+          if (cells.length >= 4) {
+            name = cells[0];
+            // completed format: Name Started Completed Modules Exam Notes
+            if (/\d+\/\d+/.test(cells[3]) && cells.length >= 5) {
+              modules = cells[3]; exam = cells[4]; date = cells[2] || cells[1]; status = 'completed';
+            } else {
+              // in progress: Name Last Modules Progress Current Exam
+              modules = cells[2]; progress = cells[3]; current = cells[4]; exam = cells[5]; date = cells[1]; status = 'in_progress';
+            }
+          }
+        }
+      }
+
+      name = (name || '').trim();
+      if (!name) { alert('Could not parse a learner name from the paste.'); return; }
+      status = (status || 'in_progress').trim();
+      if (/complete/i.test(status)) status = 'completed';
+      upsert({
+        name: name,
+        status: status,
+        modules: (modules || '—').trim(),
+        progress: (progress || '—').trim(),
+        exam: (exam || '—').trim(),
+        date: (date || new Date().toISOString().slice(0, 10)).trim(),
+        current: (current || '—').trim()
+      });
+      document.getElementById('importBox').value = '';
+      alert('Learner updated on local board.');
+    }
+    function exportMarkdown() {
+      var list = loadRoster();
+      var done = list.filter(function (r) { return r.status === 'completed'; });
+      var prog = list.filter(function (r) { return r.status !== 'completed'; });
+      var md = [];
+      md.push('## Completed');
+      md.push('');
+      md.push('| Name | Started | Completed | Modules | Exam score | Certificate ID | Notes |');
+      md.push('|------|---------|-----------|--------:|------------|----------------|-------|');
+      done.forEach(function (r) {
+        md.push('| ' + r.name + ' | ' + r.date + ' | ' + r.date + ' | ' + r.modules + ' | ' + r.exam + ' |  |  |');
+      });
+      md.push('');
+      md.push('## In progress');
+      md.push('');
+      md.push('| Name | Last update | Modules done | Progress % | Current module | Exam | Notes |');
+      md.push('|------|-------------|-------------:|-----------:|----------------|------|-------|');
+      prog.forEach(function (r) {
+        md.push('| ' + r.name + ' | ' + r.date + ' | ' + r.modules + ' | ' + r.progress + ' | ' + (r.current || '—') + ' | ' + r.exam + ' |  |');
+      });
+      var text = md.join('\n');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { alert('Copied LEARNERS.md snippet.'); });
+      } else {
+        prompt('Copy this markdown:', text);
+      }
+    }
+    function clearRoster() {
+      if (confirm('Clear all local admin roster data on this browser?')) {
+        localStorage.removeItem(KEY);
+        render();
+      }
+    }
+    render();
+  </script>
+</body>
+</html>

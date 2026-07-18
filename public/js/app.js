@@ -323,6 +323,9 @@ const defaultState = () => ({
   }
 
   // ===== SHARE PROGRESS =====
+  // CONFIG: Set your Google Apps Script Web App URL below
+  const BACKEND_URL = ''; // e.g., 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec'
+
   function isOnline() {
     return navigator.onLine !== false;
   }
@@ -341,6 +344,7 @@ const defaultState = () => ({
 
     const entry = {
       name: state.learnerName,
+      track: activeTrack,
       status: examTaken && examScore >= PASS_EXAM ? 'completed' : (doneModules > 0 ? 'in_progress' : 'not_started'),
       modules: doneModules + '/' + trackModules.length + ' (Part ' + trackInfo.version + ')',
       progress: pct + '%',
@@ -349,6 +353,7 @@ const defaultState = () => ({
       current: doneModules > 0 && !examTaken ? ('Module ' + state.lastModule) : '—'
     };
 
+    // Save to local roster
     try {
       const ROSTER_KEY = 'aiCourseAdminRoster_unified';
       let roster = JSON.parse(localStorage.getItem(ROSTER_KEY) || '[]');
@@ -359,9 +364,22 @@ const defaultState = () => ({
         roster.push(entry);
       }
       localStorage.setItem(ROSTER_KEY, JSON.stringify(roster));
+    } catch (e) { /* ignore */ }
+
+    // Send to Google Apps Script backend if configured
+    if (BACKEND_URL) {
+      fetch(BACKEND_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry)
+      }).then(function () {
+        toast('Progress shared to server ✓');
+      }).catch(function () {
+        toast('Progress saved locally only');
+      });
+    } else {
       toast('Progress automatically shared ✓');
-    } catch (e) {
-      // Silently fail - sharing is optional
     }
   }
 
