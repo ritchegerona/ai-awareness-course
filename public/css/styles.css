@@ -1902,12 +1902,12 @@ body.sidebar-open { overflow: hidden; }
 }
 
 html[data-theme="dark"] .toast {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text);
+  background: var(--accent);
+  border: 1px solid var(--accent-border);
+  color: #042f2e;
 }
 html[data-theme="dark"] .toast.success {
-  background: linear-gradient(135deg, #059669, #065f46);
+  background: #059669;
 }
 html[data-theme="dark"] .toast.celebrate {
   background: linear-gradient(135deg, #0f766e, #134e4a);
