@@ -846,6 +846,23 @@ const defaultState = () => ({
     });
   }
 
+  // ===== MODULE ACCESS =====
+  function canAccessModule(moduleId) {
+    const trackModules = getCurrentTrackModules();
+    const modIndex = trackModules.findIndex(function (m) { return m.id === moduleId; });
+    
+    // First module is always accessible
+    if (modIndex === 0) return true;
+    
+    // Check if all previous modules are completed
+    for (var i = 0; i < modIndex; i++) {
+      if (state.completedLessons.indexOf(trackModules[i].id) === -1) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   // ===== NAVIGATION =====
   function navigateTo(moduleOrPage) {
     const dash = document.getElementById('dashboard');
@@ -864,6 +881,11 @@ const defaultState = () => ({
       const mod = MODULES.find(function (m) { return m.id === moduleId; });
       if (mod && mod.track !== activeTrack) {
         toast('Switch to ' + mod.track + ' track to view this module.');
+        return;
+      }
+      // Check sequential module access
+      if (mod && !canAccessModule(moduleId)) {
+        toast('Complete the previous module to unlock this one.');
         return;
       }
       if (dash) dash.style.display = 'none';
