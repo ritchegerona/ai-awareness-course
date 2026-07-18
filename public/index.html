@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="AI Awareness for the Workplace — interactive course with quizzes, final exam, and certificate. By Ritche Gerona.">
 <meta name="author" content="Ritche Gerona">
-<meta name="theme-color" content="#141414">
+<meta name="theme-color" content="#0c0c0c">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>AI Awareness Course V1 — Foundations | Ritche Gerona</title>
+<title>AI Awareness Course - Foundations • Intermediate • Advanced | Ritche Gerona</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Great+Vibes&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=40">
+<link rel="stylesheet" href="css/styles.css?v=41">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -21,10 +21,10 @@
   // Apply theme ASAP to avoid flash
   (function () {
     try {
-      var t = localStorage.getItem('aiCourseTheme') || 'light';
+      var t = localStorage.getItem('aiCourseTheme') || 'dark';
       document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
     } catch (e) {
-      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.setAttribute('data-theme', 'dark');
     }
   })();
 </script>
@@ -44,7 +44,7 @@
 
   <!-- ===== SIDEBAR ===== -->
   <nav class="sidebar" id="sidebar">
-    <!-- Abstract AI mesh (same language as main header) -->
+    <!-- Abstract AI mesh -->
     <div class="sidebar-mesh" aria-hidden="true">
       <svg class="sidebar-mesh-svg" viewBox="0 0 280 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -108,7 +108,7 @@
         <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Close menu">×</button>
         <h1 class="sidebar-title">AI Awareness</h1>
         <p class="sidebar-tagline">Workplace AI literacy series</p>
-        <div class="version-badge" id="sidebarVersionBadge">Version 1 · Foundations</div>
+        <div class="version-badge" id="sidebarVersionBadge">Part 1 • Foundations</div>
         <label class="theme-switch" title="Toggle light / dark mode">
           <span class="theme-switch-label" id="themeSwitchLabel">Dark mode</span>
           <input type="checkbox" id="themeToggleSidebar" role="switch" aria-label="Toggle dark mode">
@@ -128,7 +128,7 @@
 
   <!-- ===== MAIN ===== -->
   <main class="main-content">
-    <!-- Full-area AI mesh (dashboard + modules) -->
+    <!-- Full-area AI mesh -->
     <div class="main-mesh" aria-hidden="true">
       <svg class="main-mesh-svg" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -266,18 +266,15 @@
       </div>
       <div class="page-header-inner">
         <div class="page-header-copy">
-          <p class="eyebrow">Premium workplace course · Self-paced</p>
+          <p class="eyebrow">Complete AI Course Series · Self-paced</p>
           <h1>AI Awareness for the Workplace</h1>
           <p>A practical, non-technical course for people new to artificial intelligence. Learn how AI works, how it applies at work, and how to use it responsibly — beyond the chatbot hype.</p>
           <div class="meta">
-            <span class="version-pill" id="headerVersionPill">Version 1 · Foundations</span>
-            <span>12 Modules</span>
-            <span>~4h 45min</span>
+            <span class="version-pill" id="headerVersionPill">Part 1 • Foundations</span>
+            <span id="moduleCount">12 Modules per track</span>
+            <span>~12h total</span>
             <span>Quizzes + Final Exam</span>
             <span>Certificate</span>
-            <button type="button" class="meta-link meta-link-dashboard" id="dashboardBtn" onclick="navigateTo(0)" title="Return to main dashboard">
-              ← Main Dashboard
-            </button>
           </div>
         </div>
         <div class="hero-progress-card" id="heroProgressCard" aria-label="Your course progress">
@@ -290,9 +287,9 @@
           </div>
           <div class="hero-progress-meta">
             <p class="hero-progress-title">Your progress</p>
-            <p class="hero-progress-sub" id="heroProgressSub">Start Module 1 to begin</p>
+            <p class="hero-progress-sub" id="heroProgressSub">Start Part 1 to begin</p>
             <div class="hero-progress-stats">
-              <span><strong id="heroModulesDone">0</strong>/12 modules</span>
+              <span><strong id="heroModulesDone">0</strong>/36 modules</span>
               <span id="heroExamStatus">Exam locked</span>
             </div>
           </div>
@@ -309,29 +306,29 @@
         </div>
         <button type="button" class="btn btn-primary" id="continueBtn">Continue</button>
       </div>
-
+      
       <h2>Learning Path</h2>
       <div class="version-path" id="versionPath">
-        <div class="version-card active interactive-card" tabindex="0">
-          <div class="v-tag">Version 1</div>
+        <div class="version-card active interactive-card" tabindex="0" data-track="foundations">
+          <div class="v-tag">Part 1</div>
           <h3>Foundations</h3>
           <p>For general audiences and people new to AI. Core concepts, workplace use, ethics, and responsible habits.</p>
           <div class="status"><span class="status-dot"></span> Available now</div>
         </div>
-        <div class="version-card coming interactive-card" tabindex="0">
-          <div class="v-tag">Version 2</div>
+        <div class="version-card locked interactive-card" tabindex="0" data-track="intermediate">
+          <div class="v-tag">Part 2</div>
           <h3>Intermediate</h3>
-          <p>Deeper tools, workflows, and applied techniques. Coming next — different topics from V1.</p>
-          <div class="status">Coming soon</div>
+          <p>Deeper tools, workflows, and applied techniques. Complete Part 1 to unlock.</p>
+          <div class="status"><span class="status-dot locked"></span> Locked</div>
         </div>
-        <div class="version-card coming interactive-card" tabindex="0">
-          <div class="v-tag">Version 3</div>
+        <div class="version-card locked interactive-card" tabindex="0" data-track="advanced">
+          <div class="v-tag">Part 3</div>
           <h3>Advanced</h3>
-          <p>Advanced systems, strategy, and specialist skills. Planned after V2 — unique advanced topics.</p>
-          <div class="status">Planned</div>
+          <p>Advanced systems, strategy, and specialist skills. Complete Parts 1 & 2 to unlock.</p>
+          <div class="status"><span class="status-dot locked"></span> Locked</div>
         </div>
       </div>
-
+      
       <h2>Course Overview</h2>
       <div class="dashboard-grid overview-grid">
         <div class="dash-card interactive-card" style="--i:0">
@@ -355,10 +352,12 @@
           <p>Get practical with prompt engineering, AI tool evaluation, and real workplace use cases you can apply immediately.</p>
         </div>
       </div>
-
-      <h2>Version 1 Modules</h2>
+      
+      <div class="spacer-medium"></div>
+      
+      <h2 id="trackModulesTitle">Part 1 Modules</h2>
       <div class="dashboard-grid" id="moduleCards"></div>
-
+      
       <div class="cta-row">
         <button class="btn btn-primary btn-lg btn-glow" id="startLearningBtn" onclick="navigateTo(1)">Start Learning</button>
         <button type="button" class="btn btn-outline btn-lg" id="shareProgressBtn" onclick="shareProgressReport()">Share Progress for Records</button>
@@ -373,17 +372,17 @@
         Progress is saved on your device. Use <strong>Share Progress for Records</strong> to copy a report for the private completion roster.
       </p>
     </div>
-
+    
     <!-- Module Views -->
     <div id="moduleViews"></div>
-
+    
     <!-- Certificate View -->
     <div class="certificate-wrapper" id="certificateView">
       <div class="certificate" id="certificateContent">
         <!-- Outer gold / navy frame -->
         <div class="cert-outer-border"></div>
         <div class="cert-inner-border"></div>
-
+        
         <!-- Top-left tech corner -->
         <div class="cert-corner-tl" aria-hidden="true">
           <svg class="cert-ai-head" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -406,32 +405,19 @@
             <path d="M56 70 H72 M56 100 H70 M56 130 H72" stroke="#38bdf8" stroke-width="1" opacity="0.5"/>
           </svg>
         </div>
-
+        
         <!-- Top-right ribbon -->
-        <div class="cert-ribbon">
+        <div class="cert-ribbon" id="certRibbon">
           <div class="cert-ribbon-inner">
             <span>AI AWARENESS</span>
-            <span class="cert-ribbon-sub">VERSION 1</span>
+            <span class="cert-ribbon-sub" id="certRibbonSub">PART 1</span>
             <span class="cert-ribbon-stars">★★★★★</span>
           </div>
         </div>
-
+        
         <!-- Left skills column -->
-        <ul class="cert-skills">
-          <li><span class="sk-num">01</span><div><strong>What is AI?</strong></div></li>
-          <li><span class="sk-num">02</span><div><strong>AI Beyond Chatbots</strong></div></li>
-          <li><span class="sk-num">03</span><div><strong>How AI Works</strong></div></li>
-          <li><span class="sk-num">04</span><div><strong>AI in the Workplace</strong></div></li>
-          <li><span class="sk-num">05</span><div><strong>Generative AI &amp; LLMs</strong></div></li>
-          <li><span class="sk-num">06</span><div><strong>Prompting &amp; Practical Use</strong></div></li>
-          <li><span class="sk-num">07</span><div><strong>AI Ethics &amp; Responsibility</strong></div></li>
-          <li><span class="sk-num">08</span><div><strong>The Future of AI</strong></div></li>
-          <li><span class="sk-num">09</span><div><strong>Data Privacy &amp; AI</strong></div></li>
-          <li><span class="sk-num">10</span><div><strong>AI Tools Hands-On Guide</strong></div></li>
-          <li><span class="sk-num">11</span><div><strong>AI &amp; Communication at Work</strong></div></li>
-          <li><span class="sk-num">12</span><div><strong>Critical Thinking with AI</strong></div></li>
-        </ul>
-
+        <ul class="cert-skills" id="certSkills"></ul>
+        
         <!-- Center content -->
         <div class="cert-center">
           <div class="cert-crest" aria-hidden="true">
@@ -444,15 +430,15 @@
               <path d="M34 78 Q60 100 86 78" stroke="#c9a227" stroke-width="1.5" fill="none" opacity="0.7"/>
             </svg>
           </div>
-
+          
           <p class="cert-kicker">Certificate of Completion</p>
           <p class="cert-presented">This is proudly presented to</p>
           <div class="recipient" id="certName">Learner Name</div>
           <p class="cert-for">For successfully completing</p>
           <h1 class="cert-program">AI Awareness for the Workplace</h1>
-          <p class="cert-level-line" id="certVersionLabel">Version 1 · Foundations · New to AI</p>
+          <p class="cert-level-line" id="certVersionLabel">Part 1 • Foundations • New to AI</p>
           <p class="completion-text">This certificate recognizes successful completion of all 12 modules, module quizzes, and the final examination, demonstrating a foundational understanding of artificial intelligence, workplace applications, ethics, and responsible professional use.</p>
-
+          
           <div class="cert-meta-row">
             <div class="cert-meta-item">
               <span class="meta-label">Completion Date</span>
@@ -471,13 +457,13 @@
               <span class="meta-value gold" id="certLevel">Foundations</span>
             </div>
           </div>
-
+          
           <div class="signature-area">
             <div class="signature-box">
               <div class="sig-name">Ritche Gerona</div>
               <div class="sig-line"></div>
               <div class="sig-label">Ritche Gerona</div>
-              <div class="sig-role">Course Author · AI Automation Developer</div>
+              <div class="sig-role">Course Author • AI Automation Developer</div>
             </div>
             <div class="cert-center-seal" aria-hidden="true">
               <svg viewBox="0 0 80 80" width="64" height="64">
@@ -490,11 +476,11 @@
               <div class="sig-name">AI Awareness Series</div>
               <div class="sig-line"></div>
               <div class="sig-label">AI Awareness Program</div>
-              <div class="sig-role">Version 1 · Foundations Track</div>
+              <div class="sig-role" id="certTrackLabel">Part 1 • Foundations Track</div>
             </div>
           </div>
         </div>
-
+        
         <!-- Right gold seal -->
         <div class="cert-gold-seal" aria-hidden="true">
           <svg viewBox="0 0 160 180" width="120" height="135">
@@ -515,7 +501,7 @@
             <text x="80" y="152" text-anchor="middle" fill="#0b1b3a" font-size="8" font-family="Inter,Arial" font-weight="700">★★★★★</text>
           </svg>
         </div>
-
+        
         <!-- QR block -->
         <div class="cert-qr-block">
           <img id="certQr" class="cert-qr" alt="Certificate QR" width="72" height="72" crossorigin="anonymous">
@@ -556,7 +542,7 @@
       >
       <div>
         <h3 id="authorModalTitle">Ritche Gerona</h3>
-        <p class="about-author-role">AI Automation Developer · IT Professional · Course Author</p>
+        <p class="about-author-role">AI Automation Developer • IT Professional • Course Author</p>
         <p class="about-author-meta">
           <span>📍 Pasig City, Philippines</span>
           <a href="https://github.com/ritchegerona" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
@@ -576,9 +562,8 @@
 
 <div class="toast" id="appToast" role="status" aria-live="polite" hidden></div>
 
-
-<script src="js/vendor/html2canvas.min.js?v=40"></script>
-<script src="js/modules-data.js?v=40"></script>
-<script src="js/app.js?v=40"></script>
+<script src="js/vendor/html2canvas.min.js?v=41"></script>
+<script src="js/modules-data.js?v=41"></script>
+<script src="js/app.js?v=41"></script>
 </body>
 </html>

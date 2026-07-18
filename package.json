@@ -1,7 +1,7 @@
 {
   "name": "ai-awareness-course",
-  "version": "1.0.0",
-  "description": "AI Awareness for the Workplace V1.0.0 Foundations by Ritche Gerona",
+  "version": "2.0.0",
+  "description": "AI Awareness for the Workplace V2.0.0 Advanced by Ritche Gerona",
   "author": "Ritche Gerona",
   "private": true,
   "main": "server.js",

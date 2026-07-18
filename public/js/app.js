@@ -1,55 +1,66 @@
-/* AI Awareness Course — application runtime
-   Cross-platform hardened: storage, downloads, mobile nav, offline SW
+/* AI Awareness Course — Unified Multi-Track Application Runtime
+   Supports Foundations (Part 1), Intermediate (Part 2), Advanced (Part 3) tracks
+   Sequential progression: Part 1 → Part 2 → Part 3
 */
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'aiCourseState_v1';
+  const STORAGE_KEY = 'aiCourseState_unified';
+  const STORAGE_KEY_LEGACY = 'aiCourseState';
   const PASS_QUIZ = 4;
   const PASS_EXAM = 18;
 
-  /** Course series catalog — V1 active; V2/V3 reserved for future topics */
-  const COURSE_CATALOG = {
-    v1: {
-      id: 'v1',
+  // ===== COURSE TRACKS =====
+  const COURSE_TRACKS = {
+    foundations: {
+      id: 'foundations',
       version: 1,
       level: 'Foundations',
       title: 'AI Awareness for the Workplace',
-      audience: 'General / new to AI',
-      status: 'active',
+      audience: 'General / New to AI',
       duration: '~4h 45min',
-      modules: 12
+      examDescription: 'demonstrating a foundational understanding of artificial intelligence, workplace applications, ethics, and responsible professional use.'
     },
-    v2: {
-      id: 'v2',
+    intermediate: {
+      id: 'intermediate',
       version: 2,
       level: 'Intermediate',
       title: 'AI Awareness — Intermediate',
       audience: 'Practitioners ready for deeper tools & workflows',
-      status: 'coming_soon'
+      duration: '~4h 45min',
+      examDescription: 'demonstrating an intermediate understanding of AI tools, workflows, and practical applications.'
     },
-    v3: {
-      id: 'v3',
+    advanced: {
+      id: 'advanced',
       version: 3,
       level: 'Advanced',
       title: 'AI Awareness — Advanced',
       audience: 'Specialists & strategic implementers',
-      status: 'planned'
+      duration: '~5h 30min',
+      examDescription: 'demonstrating an advanced understanding of AI architecture, governance, and strategic implementation.'
     }
   };
-  const ACTIVE_COURSE = COURSE_CATALOG.v1;
+
+  // Current active track
+  let activeTrack = 'foundations';
   const THEME_KEY = 'aiCourseTheme';
-  const ADMIN_KEY = 'aiCourseAdminRoster_v1';
+  const ADMIN_KEY = 'aiCourseAdminRoster_unified';
 
   const defaultState = () => ({
     currentModule: 0,
     completedLessons: [],
     quizScores: {},
-    examScore: null,
-    examTaken: false,
+    examScores: {},
+    examTaken: {},
     learnerName: '',
     examAnswers: {},
-    lastModule: 0
+    lastModule: 0,
+    trackProgress: {
+      foundations: 0,
+      intermediate: 0,
+      advanced: 0
+    },
+    unlockedTracks: ['foundations']
   });
 
   let state = defaultState();
@@ -57,10 +68,10 @@
   // ===== UTILITIES =====
   function escapeHtml(str) {
     return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
+      .replace(/&/g, '&')
+      .replace(/</g, '<')
+      .replace(/>/g, '>')
+      .replace(/"/g, '"')
       .replace(/'/g, '&#39;');
   }
 
@@ -89,6 +100,15 @@
     }, ms || 3200);
   }
 
+  function downloadBlob(blob, filename) {
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+
+  // ===== STATE MANAGEMENT =====
   function normalizeState(parsed) {
     const base = defaultState();
     if (!parsed || typeof parsed !== 'object') return base;
@@ -98,7 +118,6 @@
       base.completedLessons = parsed.completedLessons
         .map(Number)
         .filter(function (n) { return n >= 1 && n <= MODULES.length; });
-      // unique
       base.completedLessons = base.completedLessons.filter(function (v, i, a) { return a.indexOf(v) === i; });
     }
     if (parsed.quizScores && typeof parsed.quizScores === 'object') {
@@ -107,9 +126,29 @@
         if (!isNaN(n)) base.quizScores[k] = n;
       });
     }
-    if (typeof parsed.examScore === 'number' || parsed.examScore === null) base.examScore = parsed.examScore;
-    if (typeof parsed.examTaken === 'boolean') base.examTaken = parsed.examTaken;
+    if (parsed.examScores && typeof parsed.examScores === 'object') {
+      Object.keys(parsed.examScores).forEach(function (track) {
+        const n = Number(parsed.examScores[track]);
+        if (!isNaN(n)) base.examScores[track] = n;
+      });
+    }
+    if (parsed.examTaken && typeof parsed.examTaken === 'object') {
+      Object.keys(parsed.examTaken).forEach(function (track) {
+        if (typeof parsed.examTaken[track] === 'boolean') base.examTaken[track] = parsed.examTaken[track];
+      });
+    }
     if (parsed.examAnswers && typeof parsed.examAnswers === 'object') base.examAnswers = parsed.examAnswers;
+    if (parsed.trackProgress && typeof parsed.trackProgress === 'object') {
+      Object.keys(parsed.trackProgress).forEach(function (track) {
+        const n = Number(parsed.trackProgress[track]);
+        if (!isNaN(n)) base.trackProgress[track] = n;
+      });
+    }
+    if (Array.isArray(parsed.unlockedTracks)) {
+      base.unlockedTracks = parsed.unlockedTracks.filter(function (t) {
+        return t === 'foundations' || t === 'intermediate' || t === 'advanced';
+      });
+    }
     if (parsed.currentModule === 'exam' || parsed.currentModule === 'cert' || parsed.currentModule === 0) {
       base.currentModule = parsed.currentModule;
     } else {
@@ -122,10 +161,38 @@
     return base;
   }
 
+  function loadState() {
+    try {
+      let saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) {
+        const legacy = localStorage.getItem(STORAGE_KEY_LEGACY);
+        if (legacy) {
+          saved = legacy;
+          try { localStorage.setItem(STORAGE_KEY, legacy); } catch (_) { /* ignore */ }
+        }
+      }
+      if (saved) {
+        state = normalizeState(JSON.parse(saved));
+      }
+    } catch (e) {
+      state = defaultState();
+      toast('Could not load saved progress. Starting fresh.');
+    }
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      return true;
+    } catch (e) {
+      toast('Could not save progress (storage full or private mode).');
+      return false;
+    }
+  }
+
   // ===== THEME =====
   function getTheme() {
-    const t = document.documentElement.getAttribute('data-theme');
-    return t === 'dark' ? 'dark' : 'light';
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
   }
 
   function applyTheme(theme) {
@@ -158,47 +225,6 @@
       side.addEventListener('change', function () {
         applyTheme(side.checked ? 'dark' : 'light');
       });
-    }
-  }
-
-  function moduleChecklistItems(mod, idx, isCompleted) {
-    const score = state.quizScores[idx];
-    const attempted = typeof score === 'number';
-    const quizDone = isCompleted || (attempted && score >= PASS_QUIZ);
-    return [
-      { text: 'Read the lesson content (' + (mod.duration || 'self-paced') + ')', done: attempted || isCompleted },
-      { text: 'Review examples and key ideas', done: attempted || isCompleted },
-      { text: 'Pass the module quiz (4/5 or higher)', done: !!quizDone }
-    ];
-  }
-
-  function loadState() {
-    try {
-      let saved = localStorage.getItem(STORAGE_KEY);
-      // Migrate older progress key if present
-      if (!saved) {
-        const legacy = localStorage.getItem('aiCourseState');
-        if (legacy) {
-          saved = legacy;
-          try { localStorage.setItem(STORAGE_KEY, legacy); } catch (_) { /* ignore */ }
-        }
-      }
-      if (saved) {
-        state = normalizeState(JSON.parse(saved));
-      }
-    } catch (e) {
-      state = defaultState();
-      toast('Could not load saved progress. Starting fresh.');
-    }
-  }
-
-  function saveState() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      return true;
-    } catch (e) {
-      toast('Could not save progress (storage full or private mode).');
-      return false;
     }
   }
 
@@ -293,131 +319,10 @@
     }
   }
 
-  // ===== RENDER SIDEBAR =====
-  function renderSidebar() {
-    const list = document.getElementById('moduleList');
-    if (!list) return;
-    let html = '';
-    MODULES.forEach(function (mod, i) {
-      const idx = i + 1;
-      const isActive = state.currentModule === idx;
-      const isCompleted = state.completedLessons.indexOf(idx) !== -1;
-      html +=
-        '<li class="module-item' + (isActive ? ' active' : '') + (isCompleted ? ' completed' : '') + '" data-nav="' + idx + '">' +
-        '<span class="num">' + (isCompleted ? '✓' : idx) + '</span>' +
-        '<span class="info">' +
-        '<span class="title">' + escapeHtml(mod.title) + '</span>' +
-        '<span class="duration">' + escapeHtml(mod.duration) + '</span>' +
-        '</span></li>';
-    });
-    const isExamActive = state.currentModule === 'exam';
-    html +=
-      '<li class="module-item exam-item' + (isExamActive ? ' active' : '') + '" data-nav="exam">' +
-      '<span class="num">' + (state.examTaken ? '✓' : 'E') + '</span>' +
-      '<span class="info">' +
-      '<span class="title">Final Exam</span>' +
-      '<span class="duration">30 min · V' + ACTIVE_COURSE.version + '</span>' +
-      '</span></li>';
-    // About author opens modal (same as header menu)
-    const aboutHtml =
-      '<li class="module-item about-item" data-nav="about" role="button">' +
-      '<span class="num">i</span>' +
-      '<span class="info">' +
-      '<span class="title">About the Author</span>' +
-      '<span class="duration">Ritche Gerona</span>' +
-      '</span></li>';
-    list.innerHTML = aboutHtml + html;
-    list.querySelectorAll('[data-nav]').forEach(function (el) {
-      el.addEventListener('click', function () {
-        const t = el.getAttribute('data-nav');
-        if (t === 'about') {
-          openAuthorModal();
-          return;
-        }
-        navigateTo(t === 'exam' ? 'exam' : parseInt(t, 10));
-      });
-    });
-    updateProgress();
-  }
-
-  function updateProgress() {
-    const total = MODULES.length + 1;
-    const done = state.completedLessons.length + (state.examTaken ? 1 : 0);
-    const pct = Math.round((done / total) * 100);
-    const bar = document.getElementById('progressBar');
-    const text = document.getElementById('progressText');
-    if (bar) bar.style.width = pct + '%';
-    if (text) text.textContent = pct + '%';
-
-    // Hero progress ring + labels
-    const ring = document.getElementById('heroProgressRing');
-    const heroPct = document.getElementById('heroProgressPct');
-    const heroSub = document.getElementById('heroProgressSub');
-    const heroMods = document.getElementById('heroModulesDone');
-    const heroExam = document.getElementById('heroExamStatus');
-    const circumference = 2 * Math.PI * 40; // r=40
-    if (ring) {
-      ring.style.strokeDasharray = String(circumference);
-      ring.style.strokeDashoffset = String(circumference * (1 - pct / 100));
-    }
-    if (heroPct) heroPct.textContent = String(pct);
-    if (heroMods) heroMods.textContent = String(state.completedLessons.length);
-    if (heroExam) {
-      if (state.examTaken && state.examScore !== null && state.examScore >= PASS_EXAM) {
-        heroExam.textContent = 'Exam passed · ' + state.examScore + '/25';
-      } else if (state.examTaken) {
-        heroExam.textContent = 'Exam retake · ' + state.examScore + '/25';
-      } else if (state.completedLessons.length >= MODULES.length) {
-        heroExam.textContent = 'Exam unlocked';
-      } else {
-        heroExam.textContent = 'Exam locked';
-      }
-    }
-    if (heroSub) {
-      if (pct >= 100) heroSub.textContent = 'Course complete — claim your certificate';
-      else if (state.completedLessons.length === 0) heroSub.textContent = 'Start Module 1 to begin';
-      else if (state.completedLessons.length < MODULES.length) {
-        heroSub.textContent = (MODULES.length - state.completedLessons.length) + ' modules remaining';
-      } else {
-        heroSub.textContent = 'All modules done — take the final exam';
-      }
-    }
-  }
-
-  function celebrate(message) {
-    toast(message || 'Great work!', 3600);
-    const el = document.getElementById('appToast');
-    if (el) el.classList.add('celebrate');
-    setTimeout(function () {
-      if (el) el.classList.remove('celebrate');
-    }, 3600);
-
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    const layer = document.createElement('div');
-    layer.className = 'confetti-layer';
-    const colors = ['#0f766e', '#2dd4bf', '#c9a227', '#0b1b3a', '#5eead4', '#f5e6a6'];
-    for (let i = 0; i < 36; i++) {
-      const p = document.createElement('i');
-      p.className = 'confetti-piece';
-      p.style.left = Math.random() * 100 + 'vw';
-      p.style.background = colors[i % colors.length];
-      p.style.animationDuration = (1.4 + Math.random() * 1.4) + 's';
-      p.style.animationDelay = (Math.random() * 0.25) + 's';
-      p.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
-      layer.appendChild(p);
-    }
-    document.body.appendChild(layer);
-    setTimeout(function () {
-      if (layer.parentNode) layer.parentNode.removeChild(layer);
-    }, 3200);
-  }
-
-  // ===== ABOUT AUTHOR MODAL =====
+  // ===== AUTHOR MODAL =====
   function openAuthorModal() {
     const modal = document.getElementById('authorModal');
     if (modal) modal.classList.add('active');
-    closeSidebarIfMobile();
   }
 
   function closeAuthorModal() {
@@ -425,578 +330,301 @@
     if (modal) modal.classList.remove('active');
   }
 
-  function initAuthorModal() {
-    const modal = document.getElementById('authorModal');
-    if (!modal) return;
-    modal.addEventListener('click', function (e) {
-      if (e.target === modal) closeAuthorModal();
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeAuthorModal();
-    });
+  // ===== TRACK MANAGEMENT =====
+  function getCurrentTrackModules() {
+    return MODULES.filter(function (m) { return m.track === activeTrack; });
   }
 
-  // ===== NAVIGATION =====
-  function navigateTo(target) {
-    if (!state.learnerName) {
-      showNamePrompt();
-      return;
-    }
+  function isTrackUnlocked(track) {
+    return state.unlockedTracks.indexOf(track) !== -1;
+  }
 
-    closeSidebarIfMobile();
-    closeAuthorModal();
+  function unlockNextTrack() {
+    const currentTrackModules = getCurrentTrackModules();
+    const allDone = currentTrackModules.every(function (mod) {
+      return state.completedLessons.indexOf(mod.id) !== -1;
+    });
+    const examPassed = state.examScores[activeTrack] !== undefined && state.examScores[activeTrack] >= PASS_EXAM;
 
-    const dashboard = document.getElementById('dashboard');
-    const pageHeader = document.getElementById('pageHeader');
-    const certView = document.getElementById('certificateView');
-    if (dashboard) dashboard.style.display = 'none';
-    document.querySelectorAll('.module-view').forEach(function (el) { el.classList.remove('active'); });
-    if (certView) certView.classList.remove('active');
-    if (pageHeader) pageHeader.style.display = 'block';
-
-    if (target === 0 || target === '0') {
-      state.currentModule = 0;
-      if (dashboard) dashboard.style.display = 'block';
-      if (pageHeader) pageHeader.style.display = 'block';
-      renderSidebar();
-      renderDashboardCards();
-      updateContinueBar();
+    if (allDone && examPassed && activeTrack === 'foundations' && !state.unlockedTracks.includes('intermediate')) {
+      state.unlockedTracks.push('intermediate');
+      toast('Part 2 (Intermediate) is now unlocked!');
       saveState();
-      window.scrollTo(0, 0);
-      return;
     }
-
-    if (target === 'exam') {
-      state.currentModule = 'exam';
-      state.lastModule = MODULES.length;
-      if (pageHeader) pageHeader.style.display = 'none';
-      renderExam();
-      renderSidebar();
-      updateContinueBar();
+    if (allDone && examPassed && activeTrack === 'intermediate' && !state.unlockedTracks.includes('advanced')) {
+      state.unlockedTracks.push('advanced');
+      toast('Part 3 (Advanced) is now unlocked!');
       saveState();
-      window.scrollTo(0, 0);
-      return;
     }
+  }
 
-    const idx = parseInt(target, 10);
-    if (isNaN(idx) || idx < 1 || idx > MODULES.length) return;
+  function setActiveTrack(track) {
+    if (!isTrackUnlocked(track)) {
+      toast('Complete the previous track to unlock this one.');
+      return false;
+    }
+    activeTrack = track;
+    const trackInfo = COURSE_TRACKS[activeTrack];
+    const pill = document.getElementById('headerVersionPill');
+    const badge = document.getElementById('sidebarVersionBadge');
+    const label = 'Part ' + trackInfo.version + ' • ' + trackInfo.level;
+    if (pill) pill.textContent = label;
+    if (badge) badge.textContent = label;
 
-    state.currentModule = idx;
-    state.lastModule = idx;
-    renderModule(idx);
+    const trackModulesTitle = document.getElementById('trackModulesTitle');
+    if (trackModulesTitle) trackModulesTitle.textContent = 'Part ' + trackInfo.version + ' Modules';
+
     renderSidebar();
-    updateContinueBar();
-    saveState();
-    window.scrollTo(0, 0);
+    renderDashboardCards();
+    updateProgress();
+    // Update version path cards
+    const versionPath = document.getElementById('versionPath');
+    if (versionPath) {
+      versionPath.querySelectorAll('.version-card').forEach(function (card) {
+        const cardTrack = card.getAttribute('data-track');
+        if (cardTrack === activeTrack) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      });
+    }
+    return true;
   }
 
-  function getResumeTarget() {
-    if (state.completedLessons.length >= MODULES.length) {
-      if (state.examTaken && state.examScore !== null && state.examScore >= PASS_EXAM) return 'cert';
-      return 'exam';
-    }
-    if (state.lastModule >= 1 && state.lastModule <= MODULES.length) return state.lastModule;
-    // first incomplete module
-    for (let i = 1; i <= MODULES.length; i++) {
-      if (state.completedLessons.indexOf(i) === -1) return i;
-    }
-    return 1;
+  // ===== PROGRESS =====
+  function updateProgress() {
+    const trackModules = getCurrentTrackModules();
+    const totalModules = trackModules.length;
+    const doneModules = trackModules.filter(function (m) {
+      return state.completedLessons.indexOf(m.id) !== -1;
+    }).length;
+    const totalUnits = totalModules + 1;
+    const doneUnits = doneModules + (state.examTaken[activeTrack] ? 1 : 0);
+    const pct = Math.round((doneUnits / totalUnits) * 100);
+
+    const pctEl = document.getElementById('progressText');
+    const barEl = document.getElementById('progressBar');
+    if (pctEl) pctEl.textContent = pct + '%';
+    if (barEl) barEl.style.width = pct + '%';
+
+    // Update hero progress
+    const heroPct = document.getElementById('heroProgressPct');
+    const heroSub = document.getElementById('heroProgressSub');
+    const heroDone = document.getElementById('heroModulesDone');
+    const heroExam = document.getElementById('heroExamStatus');
+    if (heroPct) heroPct.textContent = pct;
+    if (heroDone) heroDone.textContent = doneModules;
+    if (heroExam) heroExam.textContent = state.examTaken[activeTrack] ? 'Exam passed' : 'Exam locked';
+    if (heroSub) heroSub.textContent = state.completedLessons.length === 0 ? 'Start Part 1 to begin' : 'Keep going!';
   }
 
+  // ===== CONTINUE BAR =====
   function updateContinueBar() {
     const bar = document.getElementById('continueBar');
-    const title = document.getElementById('continueTitle');
-    const sub = document.getElementById('continueSubtitle');
-    const btn = document.getElementById('continueBtn');
-    const startBtn = document.getElementById('startLearningBtn');
-    if (!bar || !btn) return;
+    if (!bar) return;
 
-    const hasProgress = state.completedLessons.length > 0 || state.examTaken || (state.lastModule >= 1);
-    if (!hasProgress || !state.learnerName) {
-      bar.classList.remove('visible');
-      if (startBtn) startBtn.textContent = 'Start Learning';
-      return;
-    }
+    const last = state.lastModule;
+    const trackModules = getCurrentTrackModules();
 
-    const target = getResumeTarget();
-    let label = 'Continue learning';
-    let detail = 'Pick up where you left off';
-    if (target === 'cert') {
-      label = 'Course complete';
-      detail = 'Open your certificate';
-      btn.textContent = 'View Certificate';
-    } else if (target === 'exam') {
-      label = 'Ready for the final exam';
-      detail = 'All modules completed — take the exam';
-      btn.textContent = 'Go to Final Exam';
+    if (last && trackModules.find(function (m) { return m.id === last; })) {
+      bar.style.display = 'flex';
+      const mod = MODULES.find(function (m) { return m.id === last; });
+      if (mod) {
+        document.getElementById('continueTitle').textContent = 'Continue: Module ' + last;
+        document.getElementById('continueSubtitle').textContent = mod.title;
+      }
+      const btn = document.getElementById('continueBtn');
+      if (btn) btn.onclick = function () { navigateTo(last); };
     } else {
-      const mod = MODULES[target - 1];
-      label = 'Continue Module ' + target;
-      detail = (mod ? mod.title : 'Module ' + target) + (mod ? ' · ' + mod.duration : '');
-      btn.textContent = 'Continue';
+      bar.style.display = 'none';
     }
-    if (title) title.textContent = label;
-    if (sub) sub.textContent = detail;
-    bar.classList.add('visible');
-    if (startBtn) startBtn.textContent = target === 'cert' ? 'Review modules' : 'Continue Learning';
-
-    btn.onclick = function () {
-      if (target === 'cert') showCertificate();
-      else navigateTo(target);
-    };
   }
 
-  // ===== RENDER MODULE =====
-  function renderModule(idx) {
-    const mod = MODULES[idx - 1];
-    const container = document.getElementById('moduleViews');
-    if (!mod || !container) return;
+  // ===== SIDEBAR =====
+  function renderSidebar() {
+    const list = document.getElementById('moduleList');
+    if (!list) return;
+    const trackModules = getCurrentTrackModules();
+    let html = '';
+    trackModules.forEach(function (mod, i) {
+      const idx = i + 1;
+      const done = state.completedLessons.indexOf(mod.id) !== -1;
+      html += 
+        '<li class="module-item' + (done ? ' done' : '') + '" data-nav="' + mod.id + '">' +
+        '<span class="module-num">' + (idx < 10 ? '0' + idx : idx) + '</span>' +
+        '<span class="module-title">' + escapeHtml(mod.title) + '</span>' +
+        '</li>';
+    });
+    // Add exam and about items
+    html += '<li class="module-item exam-item" data-nav="exam"><span class="module-num">E</span><span class="module-title">Final Exam</span></li>';
+    html += '<li class="module-item about-item" onclick="openAuthorModal()"><span class="num">i</span><span class="module-title">About Author</span></li>';
 
-    let view = document.getElementById('mod' + idx);
-    if (!view) {
-      view = document.createElement('div');
-      view.id = 'mod' + idx;
-      view.className = 'module-view';
-      container.appendChild(view);
-    }
+    list.innerHTML = html;
+    list.querySelectorAll('[data-nav]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        navigateTo(el.getAttribute('data-nav'));
+      });
+    });
+  }
 
-    const isCompleted = state.completedLessons.indexOf(idx) !== -1;
+  // ===== MODULE CHECKLIST =====
+  function moduleChecklistItems(mod, idx, isCompleted) {
     const score = state.quizScores[idx];
-
-    const questionsHtml = mod.questions.map(function (q, qi) {
-      const optionsHtml = q.options.map(function (opt, oi) {
-        return (
-          '<label data-select-option="' + idx + ',' + qi + ',' + oi + '">' +
-          '<input type="radio" name="q' + idx + '_' + qi + '" value="' + oi + '">' +
-          escapeHtml(opt) +
-          '</label>'
-        );
-      }).join('');
-      return (
-        '<div class="question" id="q' + idx + '_' + qi + '">' +
-        '<div class="q-text">' + (qi + 1) + '. ' + escapeHtml(q.q) + '</div>' +
-        '<div class="options">' + optionsHtml + '</div>' +
-        '<div class="feedback" id="fb' + idx + '_' + qi + '"></div>' +
-        '</div>'
-      );
-    }).join('');
-
-    const scoreLabel = isCompleted
-      ? '✅ Completed! Well done.'
-      : (score !== undefined && score < PASS_QUIZ ? '❌ Needs improvement. Retake to pass.' : '');
-
-    const checklist = moduleChecklistItems(mod, idx, isCompleted);
-    const checklistHtml =
-      '<div class="module-checklist">' +
-      '<h3>This module checklist · ' + escapeHtml(mod.duration || '') + '</h3>' +
-      '<ul>' +
-      checklist.map(function (item) {
-        return (
-          '<li class="' + (item.done ? 'done' : '') + '">' +
-          '<span class="chk" aria-hidden="true">' + (item.done ? '✓' : '') + '</span>' +
-          '<span>' + escapeHtml(item.text) + '</span></li>'
-        );
-      }).join('') +
-      '</ul></div>';
-
-    view.innerHTML =
-      '<div class="module-content">' +
-      '<h2>Module ' + idx + ': ' + escapeHtml(mod.title) + '</h2>' +
-      '<p class="subtitle">' + escapeHtml(mod.subtitle) + ' · ' + escapeHtml(mod.duration) + '</p>' +
-      checklistHtml +
-      mod.content +
-      '<div class="quiz-section" id="quiz' + idx + '">' +
-      '<h3>Module ' + idx + ' Quiz</h3>' +
-      '<p style="color:var(--text-muted);margin-bottom:16px;">Test your understanding of this module. You need ' + PASS_QUIZ + '/5 correct to pass.</p>' +
-      questionsHtml +
-      '<div class="quiz-actions">' +
-      '<button type="button" class="btn btn-primary" data-submit-quiz="' + idx + '">Submit Quiz</button>' +
-      '<button type="button" class="btn btn-outline" data-reset-quiz="' + idx + '">Reset</button>' +
-      '</div>' +
-      '<div class="quiz-score" id="quizScore' + idx + '" style="display:' + (isCompleted ? 'block' : 'none') + '">' +
-      '<div class="score-num">' + (score !== undefined ? score : '—') + '/5</div>' +
-      '<div class="score-label">' + scoreLabel + '</div>' +
-      '</div></div></div>' +
-      '<div class="section-nav">' +
-      '<button type="button" class="btn btn-outline" data-nav-to="' + (idx > 1 ? idx - 1 : 0) + '"' + (idx <= 1 ? ' disabled' : '') + '>Previous</button>' +
-      '<button type="button" class="btn btn-outline btn-dashboard" data-nav-to="0">Main Dashboard</button>' +
-      '<button type="button" class="btn btn-primary" data-nav-to="' + (idx < MODULES.length ? idx + 1 : 'exam') + '">' +
-      (idx < MODULES.length ? 'Next Module →' : 'Go to Final Exam →') +
-      '</button></div>';
-
-    view.querySelectorAll('[data-select-option]').forEach(function (el) {
-      el.addEventListener('click', function () {
-        const parts = el.getAttribute('data-select-option').split(',');
-        selectOption(parseInt(parts[0], 10), parseInt(parts[1], 10), parseInt(parts[2], 10));
-      });
-    });
-    const submitBtn = view.querySelector('[data-submit-quiz]');
-    if (submitBtn) submitBtn.addEventListener('click', function () { submitQuiz(idx); });
-    const resetBtn = view.querySelector('[data-reset-quiz]');
-    if (resetBtn) resetBtn.addEventListener('click', function () { resetQuiz(idx); });
-    view.querySelectorAll('[data-nav-to]').forEach(function (el) {
-      el.addEventListener('click', function () {
-        const t = el.getAttribute('data-nav-to');
-        navigateTo(t === 'exam' ? 'exam' : parseInt(t, 10));
-      });
-    });
-
-    view.classList.add('active');
+    const attempted = typeof score === 'number';
+    const quizDone = isCompleted || (attempted && score >= PASS_QUIZ);
+    return [
+      { text: 'Read the lesson content (' + (mod.duration || 'self-paced') + ')', done: attempted || isCompleted },
+      { text: 'Review examples and key ideas', done: attempted || isCompleted },
+      { text: 'Pass the module quiz (4/5 or higher)', done: !!quizDone }
+    ];
   }
 
-  // ===== QUIZ LOGIC =====
-  function selectOption(modIdx, qIdx, optIdx) {
-    const labels = document.querySelectorAll('#q' + modIdx + '_' + qIdx + ' .options label');
-    labels.forEach(function (l) { l.classList.remove('selected'); });
-    if (!labels[optIdx]) return;
-    labels[optIdx].classList.add('selected');
-    const radio = labels[optIdx].querySelector('input[type="radio"]');
-    if (radio) radio.checked = true;
-  }
-
-  function submitQuiz(modIdx) {
-    const mod = MODULES[modIdx - 1];
+  // ===== MODULE RENDERING =====
+  function renderModule(moduleId) {
+    const mod = MODULES.find(function (m) { return m.id === moduleId; });
     if (!mod) return;
-    let correct = 0;
 
-    mod.questions.forEach(function (q, qi) {
-      const selected = document.querySelector('input[name="q' + modIdx + '_' + qi + '"]:checked');
-      const fb = document.getElementById('fb' + modIdx + '_' + qi);
-      if (!fb) return;
-      fb.className = 'feedback';
-
-      if (selected) {
-        const val = parseInt(selected.value, 10);
-        if (val === q.answer) {
-          correct++;
-          fb.className = 'feedback correct';
-          fb.textContent = '✅ Correct!';
-        } else {
-          fb.className = 'feedback incorrect';
-          fb.textContent = '❌ Incorrect. The correct answer was: ' + q.options[q.answer];
-        }
-      } else {
-        fb.className = 'feedback incorrect';
-        fb.textContent = '❌ No answer selected. The correct answer was: ' + q.options[q.answer];
-      }
-    });
-
-    state.quizScores[modIdx] = correct;
-
-    if (correct >= PASS_QUIZ) {
-      const firstPass = state.completedLessons.indexOf(modIdx) === -1;
-      if (firstPass) {
-        state.completedLessons.push(modIdx);
-      }
-      saveState();
-      renderSidebar();
-      renderDashboardCards();
-      if (firstPass) {
-        celebrate('Module ' + modIdx + ' complete');
-      }
-    } else {
-      saveState();
-    }
-
-    const scoreDiv = document.getElementById('quizScore' + modIdx);
-    if (scoreDiv) {
-      scoreDiv.style.display = 'block';
-      const num = scoreDiv.querySelector('.score-num');
-      const label = scoreDiv.querySelector('.score-label');
-      if (num) num.textContent = correct + '/5';
-      if (label) {
-        label.textContent = correct >= PASS_QUIZ
-          ? '✅ Passed! Great job!'
-          : '❌ Not quite. You need ' + PASS_QUIZ + '/5 to pass. Review the module and try again.';
-      }
-    }
-
-    updateProgress();
-  }
-
-  function resetQuiz(modIdx) {
-    document.querySelectorAll('#quiz' + modIdx + ' input[type="radio"]').forEach(function (r) { r.checked = false; });
-    document.querySelectorAll('#quiz' + modIdx + ' .feedback').forEach(function (f) {
-      f.className = 'feedback';
-      f.textContent = '';
-    });
-    document.querySelectorAll('#quiz' + modIdx + ' .options label').forEach(function (l) { l.classList.remove('selected'); });
-    const scoreDiv = document.getElementById('quizScore' + modIdx);
-    if (scoreDiv) scoreDiv.style.display = 'none';
-    if (state.quizScores[modIdx] !== undefined) delete state.quizScores[modIdx];
-    state.completedLessons = state.completedLessons.filter(function (l) { return l !== modIdx; });
-    saveState();
-    updateProgress();
-    renderSidebar();
-    renderDashboardCards();
-  }
-
-  // ===== EXAM =====
-  function renderExam() {
     const container = document.getElementById('moduleViews');
     if (!container) return;
-    let view = document.getElementById('examView');
-    if (!view) {
-      view = document.createElement('div');
-      view.id = 'examView';
-      view.className = 'module-view';
-      container.appendChild(view);
+
+    let checklistHtml = '';
+    const isCompleted = state.completedLessons.indexOf(mod.id) !== -1;
+    const items = moduleChecklistItems(mod, mod.id, isCompleted);
+    checklistHtml = items.map(function (it) {
+      return '<li><span class="chk">' + (it.done ? '✓' : '') + '</span><span>' + it.text + '</span></li>';
+    }).join('');
+
+    let html = 
+      '<section class="module-view active" id="module-' + mod.id + '">' +
+      '<h2 class="module-title">' + escapeHtml(mod.title) + '</h2>' +
+      '<p class="module-subtitle">' + escapeHtml(mod.subtitle) + '</p>' +
+      '<div class="module-content">' + mod.content + '</div>' +
+      '<div class="module-checklist"><h3>Module Checklist</h3><ul>' + checklistHtml + '</ul></div>' +
+      '<div class="quiz-section"><h3>Module Quiz</h3>' + buildQuizHtml(mod) + '</div>' +
+      '<div class="section-nav">' +
+      '<button class="btn btn-outline" onclick="navigateTo(0)">Back to Dashboard</button>' +
+      '<button class="btn btn-primary" onclick="quizCompleted(' + mod.id + ')">Mark Complete & Take Quiz</button>' +
+      '</div></section>';
+
+    container.innerHTML = html;
+    attachOptionHandlers();
+  }
+
+  function buildQuizHtml(mod) {
+    if (!mod.questions || !mod.questions.length) {
+      return '<p class="empty-state">No quiz questions available.</p>';
     }
-
-    const allModulesDone = state.completedLessons.length === MODULES.length;
-    const passed = state.examScore !== null && state.examScore >= PASS_EXAM;
-
-    let html =
-      '<div class="exam-header">' +
-      '<h3>Final Exam</h3>' +
-      '<p>Test your overall understanding of AI in the workplace.</p>' +
-      '<div class="exam-requirements">' +
-      '<span class="req ' + (allModulesDone ? 'met' : 'unmet') + '">' +
-      (allModulesDone ? '✅' : '❌') + ' All ' + MODULES.length + ' modules completed</span>' +
-      '<span class="req ' + (!state.examTaken ? 'met' : (state.examScore >= PASS_EXAM ? 'met' : 'unmet')) + '">' +
-      (!state.examTaken ? '⏳' : (state.examScore >= PASS_EXAM ? '✅' : '❌')) + ' ' + PASS_EXAM + '/25 to pass</span>' +
-      '</div></div>';
-
-    if (state.examTaken && passed) {
-      html +=
-        '<div class="quiz-score" style="margin-bottom:24px;">' +
-        '<div class="score-num">' + state.examScore + '/25</div>' +
-        '<div class="score-label">Exam passed. You can claim your certificate.</div></div>';
-    } else if (state.examTaken && !passed) {
-      html +=
-        '<div class="quiz-score" style="margin-bottom:24px;">' +
-        '<div class="score-num">' + state.examScore + '/25</div>' +
-        '<div class="score-label">❌ Not passed. You need ' + PASS_EXAM + '/25. Review the modules and try again.</div></div>';
-    }
-
-    if (state.examTaken) {
-      html += '<h3>Exam Results</h3>';
-      EXAM_QUESTIONS.forEach(function (q, qi) {
-        const userAns = state.examAnswers[qi];
-        const correct = userAns === q.answer;
-        const userText = q.options[userAns] !== undefined ? q.options[userAns] : 'No answer';
-        html +=
-          '<div class="question" style="border-color: ' + (correct ? 'var(--success)' : 'var(--danger)') + '">' +
-          '<div class="q-text">' + (qi + 1) + '. ' + escapeHtml(q.q) + '</div>' +
-          '<p style="font-size:13px;color:' + (correct ? 'var(--success)' : 'var(--danger)') + ';margin-top:8px;">' +
-          (correct ? '✅ Correct' : '❌ Your answer: ' + escapeHtml(userText) + ' · Correct: ' + escapeHtml(q.options[q.answer])) +
-          '</p></div>';
+    let html = '<form id="quiz-form-' + mod.id + '">';
+    mod.questions.forEach(function (q, i) {
+      html += '<div class="question" id="question-' + mod.id + '-' + i + '">';
+      html += '<div class="q-text">' + (i + 1) + '. ' + escapeHtml(q.q) + '</div>';
+      html += '<div class="options">';
+      q.options.forEach(function (opt, j) {
+        html += '<label><input type="radio" name="quiz-' + mod.id + '-' + i + '" value="' + j + '" ' +
+          (state.examAnswers[mod.id + '-' + i] == j ? 'checked' : '') + '>' + escapeHtml(opt) + '</label>';
       });
-      html +=
-        '<div class="section-nav" style="justify-content:center;border-top:none;padding-top:8px;">' +
-        '<button type="button" class="btn btn-outline" id="btnRetakeExam">Retake Exam</button>' +
-        (passed ? '<button type="button" class="btn btn-success btn-lg" id="btnClaimCert">Claim Certificate</button>' : '') +
-        '<button type="button" class="btn btn-outline btn-dashboard" id="btnExamDashboard">Main Dashboard</button>' +
-        '</div>';
-    } else if (!allModulesDone) {
-      html +=
-        '<div class="empty-state">' +
-        '<div class="empty-ico">🔒</div>' +
-        '<h3>Final exam is locked</h3>' +
-        '<p>Complete all ' + MODULES.length + ' modules (pass each quiz with 4/5) to unlock the final exam. You have finished ' +
-        state.completedLessons.length + ' of ' + MODULES.length + ' modules so far.</p>' +
-        '<div class="section-nav" style="justify-content:center;border-top:none;padding-top:0;margin-top:0;">' +
-        '<button type="button" class="btn btn-primary btn-lg" id="btnGoModule1">Continue learning</button>' +
-        '<button type="button" class="btn btn-outline btn-dashboard" id="btnExamDashboard">Main Dashboard</button>' +
-        '</div></div>';
-    } else {
-      html += '<p style="margin-bottom:20px;color:var(--text-muted);">Answer all 25 questions. You need at least ' + PASS_EXAM + '/25 to pass.</p>';
-      EXAM_QUESTIONS.forEach(function (q, qi) {
-        const optionsHtml = q.options.map(function (opt, oi) {
-          return (
-            '<label data-exam-option="' + qi + ',' + oi + '">' +
-            '<input type="radio" name="exam_q' + qi + '" value="' + oi + '">' +
-            escapeHtml(opt) +
-            '</label>'
-          );
-        }).join('');
-        html +=
-          '<div class="question" id="exQ' + qi + '">' +
-          '<div class="q-text">' + (qi + 1) + '. ' + escapeHtml(q.q) + '</div>' +
-          '<div class="options">' + optionsHtml + '</div></div>';
-      });
-      html +=
-        '<div class="quiz-actions">' +
-        '<button type="button" class="btn btn-primary btn-lg" id="btnSubmitExam">Submit Exam</button>' +
-        '<button type="button" class="btn btn-outline btn-dashboard" id="btnExamDashboard">Main Dashboard</button>' +
-        '</div>';
-    }
+      html += '</div></div>';
+    });
+    html += '</form><div class="quiz-actions"><button class="btn btn-primary" onclick="submitQuiz(' + mod.id + ')">Submit Quiz</button></div>';
+    return html;
+  }
 
-    view.innerHTML = html;
-    view.classList.add('active');
-
-    const retake = document.getElementById('btnRetakeExam');
-    if (retake) retake.addEventListener('click', resetExam);
-    const claim = document.getElementById('btnClaimCert');
-    if (claim) claim.addEventListener('click', showCertificate);
-    const go1 = document.getElementById('btnGoModule1');
-    if (go1) go1.addEventListener('click', function () { navigateTo(1); });
-    const submit = document.getElementById('btnSubmitExam');
-    if (submit) submit.addEventListener('click', submitExam);
-    const examDash = document.getElementById('btnExamDashboard');
-    if (examDash) examDash.addEventListener('click', function () { navigateTo(0); });
-    view.querySelectorAll('[data-exam-option]').forEach(function (el) {
-      el.addEventListener('click', function () {
-        const parts = el.getAttribute('data-exam-option').split(',');
-        selectExamOption(parseInt(parts[0], 10), parseInt(parts[1], 10));
+  function attachOptionHandlers() {
+    document.querySelectorAll('.question .options label').forEach(function (label) {
+      label.addEventListener('click', function () {
+        const input = this.querySelector('input[type="radio"]');
+        if (input) {
+          this.closest('.question').querySelectorAll('label').forEach(function (l) { l.classList.remove('selected'); });
+          this.classList.add('selected');
+        }
       });
     });
   }
 
-  function selectExamOption(qIdx, optIdx) {
-    const labels = document.querySelectorAll('#exQ' + qIdx + ' .options label');
-    labels.forEach(function (l) { l.classList.remove('selected'); });
-    if (!labels[optIdx]) return;
-    labels[optIdx].classList.add('selected');
-    const radio = labels[optIdx].querySelector('input[type="radio"]');
-    if (radio) radio.checked = true;
-  }
+  function quizCompleted(moduleId) {
+    const mod = MODULES.find(function (m) { return m.id === moduleId; });
+    if (!mod || !mod.questions) return;
 
-  function submitExam() {
-    if (state.completedLessons.length !== MODULES.length) {
-      toast('Complete all modules before submitting the exam.');
+    const checked = document.querySelectorAll('input[type="radio"]:checked');
+    if (checked.length < mod.questions.length) {
+      toast('Please answer all questions before marking complete.');
       return;
     }
-    const btn = document.getElementById('btnSubmitExam');
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = 'Submitting…';
-    }
-
-    let correct = 0;
-    const answers = {};
-
-    EXAM_QUESTIONS.forEach(function (q, qi) {
-      const selected = document.querySelector('input[name="exam_q' + qi + '"]:checked');
-      if (selected) {
-        const val = parseInt(selected.value, 10);
-        answers[qi] = val;
-        if (val === q.answer) correct++;
-      } else {
-        answers[qi] = -1;
-      }
-    });
-
-    state.examScore = correct;
-    state.examTaken = true;
-    state.examAnswers = answers;
-    saveState();
-    updateProgress();
-    renderExam();
-    renderSidebar();
-    renderDashboardCards();
-    if (correct >= PASS_EXAM) {
-      celebrate('Exam passed — claim your certificate');
-    } else {
-      toast('Not quite — review and retake when ready.');
-    }
-  }
-
-  function resetExam() {
-    state.examTaken = false;
-    state.examScore = null;
-    state.examAnswers = {};
-    saveState();
-    updateProgress();
-    renderExam();
-    renderSidebar();
+    submitQuiz(moduleId);
   }
 
   // ===== CERTIFICATE =====
-  function buildCertificateId(name, score) {
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, '0');
-    const d = String(now.getDate()).padStart(2, '0');
-    let hash = 0;
-    const raw = String(name || '') + '|' + String(score) + '|' + y + m + d;
-    for (let i = 0; i < raw.length; i++) {
-      hash = ((hash << 5) - hash) + raw.charCodeAt(i);
-      hash |= 0;
+  function getCertificateId() {
+    try {
+      let id = localStorage.getItem('aiCertId');
+      if (!id) {
+        id = 'AI-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 4).toUpperCase();
+        localStorage.setItem('aiCertId', id);
+      }
+      return id;
+    } catch (_) {
+      return 'AI-' + Math.random().toString(36).substr(2, 8).toUpperCase();
     }
-    const serial = Math.abs(hash).toString(36).toUpperCase().slice(0, 4).padStart(4, '0');
-    return 'AIA-V' + ACTIVE_COURSE.version + '-' + y + m + d + '-' + serial;
   }
 
-  function updateCertificateQr(certId) {
-    const img = document.getElementById('certQr');
-    if (!img) return;
-    const payload = 'https://ritchegerona.github.io/ai-awareness-course/?cert=' +
-      encodeURIComponent(certId || 'V1');
-    // External QR image (CORS-friendly) for PNG export
-    img.crossOrigin = 'anonymous';
-    img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=8&data=' +
-      encodeURIComponent(payload);
-  }
-
-  function showCertificate() {
-    if (!state.examTaken || state.examScore === null || state.examScore < PASS_EXAM) {
-      toast('Pass the final exam to claim your certificate.');
-      return;
-    }
-    state.currentModule = 'cert';
-    const dashboard = document.getElementById('dashboard');
-    const pageHeader = document.getElementById('pageHeader');
-    const certView = document.getElementById('certificateView');
-    if (dashboard) dashboard.style.display = 'none';
-    document.querySelectorAll('.module-view').forEach(function (el) { el.classList.remove('active'); });
-    if (pageHeader) pageHeader.style.display = 'none';
-    if (certView) certView.classList.add('active');
-
-    const nameEl = document.getElementById('certName');
-    const dateEl = document.getElementById('certDate');
-    const scoreEl = document.getElementById('certScore');
-    const verEl = document.getElementById('certVersionLabel');
-    const idEl = document.getElementById('certId');
+  function showCertificate(track) {
+    const cert = document.getElementById('certificateView');
+    const trackInfo = COURSE_TRACKS[track];
+    const trackModules = MODULES.filter(function (m) { return m.track === track; });
+    const ribbonSub = document.getElementById('certRibbonSub');
+    const versionLabel = document.getElementById('certVersionLabel');
     const levelEl = document.getElementById('certLevel');
-    const certId = buildCertificateId(state.learnerName, state.examScore);
+    const trackLabel = document.getElementById('certTrackLabel');
 
-    if (nameEl) nameEl.textContent = state.learnerName;
-    if (dateEl) {
-      dateEl.textContent = new Date().toLocaleDateString('en-US', {
-        year: 'numeric', month: 'long', day: 'numeric'
-      });
-    }
-    if (scoreEl) scoreEl.textContent = state.examScore + '/25';
-    if (verEl) {
-      verEl.textContent = 'Version ' + ACTIVE_COURSE.version + ' · ' + ACTIVE_COURSE.level + ' · New to AI';
-    }
-    if (idEl) idEl.textContent = certId;
-    if (levelEl) levelEl.textContent = ACTIVE_COURSE.level.toUpperCase();
-    updateCertificateQr(certId);
+    if (ribbonSub) ribbonSub.textContent = 'PART ' + trackInfo.version;
+    if (versionLabel) versionLabel.textContent = 'Part ' + trackInfo.version + ' • ' + trackInfo.level;
+    if (levelEl) levelEl.textContent = trackInfo.level;
+    if (trackLabel) trackLabel.textContent = 'Part ' + trackInfo.version + ' • ' + trackInfo.level + ' Track';
 
+    const skillsList = document.getElementById('certSkills');
+    if (skillsList) {
+      skillsList.innerHTML = trackModules.map(function (mod, i) {
+        return '<li><span class="sk-num">' + ((i + 1) < 10 ? '0' + (i + 1) : (i + 1)) + 
+               '</span><div><strong>' + escapeHtml(mod.title) + '</strong></div></li>';
+      }).join('');
+    }
+
+    const completionText = document.querySelector('.completion-text');
+    if (completionText) {
+      completionText.textContent = 'This certificate recognizes successful completion of all 12 modules, module quizzes, and the final examination, demonstrating ' + 
+        (track === 'foundations' ? 'a foundational understanding of artificial intelligence, workplace applications, ethics, and responsible professional use.' :
+         track === 'intermediate' ? 'an intermediate understanding of AI tools, workflows, and practical applications.' :
+         'an advanced understanding of AI architecture, governance, and strategic implementation.') + ' ';
+    }
+
+    const certName = document.getElementById('certName');
+    if (certName && state.learnerName) certName.textContent = state.learnerName;
+
+    const certDate = document.getElementById('certDate');
+    if (certDate) certDate.textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+    const certId = document.getElementById('certId');
+    if (certId) certId.textContent = getCertificateId();
+
+    const certScore = document.getElementById('certScore');
+    if (certScore) certScore.textContent = (state.examScores[track] || 0) + '/25';
+
+    const sealText = document.querySelector('.cert-gold-seal text');
+    if (sealText && sealText.nextElementSibling) {
+      sealText.nextElementSibling.textContent = trackInfo.level.toUpperCase();
+    }
+
+    if (cert) {
+      cert.style.display = 'block';
+      cert.scrollIntoView({ behavior: 'smooth' });
+    }
     saveState();
-    closeSidebarIfMobile();
-    window.scrollTo(0, 0);
-  }
-
-  function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.download = filename;
-    link.href = url;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-  }
-
-  function restoreCertStyles(cert, origW, origH) {
-    cert.style.width = origW;
-    cert.style.height = origH;
   }
 
   function downloadCertificatePNG() {
     const cert = document.getElementById('certificateContent');
-    if (!cert) {
-      toast('Certificate not found.');
-      return;
-    }
-    if (typeof html2canvas !== 'function') {
-      toast('Export library unavailable. Opening print dialog…');
-      window.print();
-      return;
-    }
+    if (!cert) return;
 
     const LANDSCAPE_W = 1000;
     const LANDSCAPE_H = 700;
@@ -1005,7 +633,8 @@
     cert.style.width = LANDSCAPE_W + 'px';
     cert.style.height = LANDSCAPE_H + 'px';
 
-    const filename = 'AI-Awareness-V' + ACTIVE_COURSE.version + '-Certificate-' + safeFileName(state.learnerName) + '.png';
+    const trackInfo = COURSE_TRACKS[activeTrack];
+    const filename = 'AI-Awareness-Part' + trackInfo.version + '-Certificate-' + safeFileName(state.learnerName) + '.png';
     const btn = document.querySelector('.cert-actions .btn-primary');
     if (btn) {
       btn.disabled = true;
@@ -1013,7 +642,6 @@
       btn.textContent = 'Generating…';
     }
 
-    // Wait briefly so QR image can load before capture
     setTimeout(function () {
       html2canvas(cert, {
         scale: 2,
@@ -1024,21 +652,15 @@
         width: LANDSCAPE_W,
         height: LANDSCAPE_H
       }).then(function (canvas) {
-        restoreCertStyles(cert, origW, origH);
+        cert.style.width = origW;
+        cert.style.height = origH;
         if (btn) {
           btn.disabled = false;
           btn.textContent = btn.dataset.prevText || 'Download Certificate (PNG)';
         }
         if (canvas.toBlob) {
           canvas.toBlob(function (blob) {
-            if (blob) {
-              downloadBlob(blob, filename);
-            } else {
-              const link = document.createElement('a');
-              link.download = filename;
-              link.href = canvas.toDataURL('image/png');
-              link.click();
-            }
+            if (blob) downloadBlob(blob, filename);
           }, 'image/png');
         } else {
           const link = document.createElement('a');
@@ -1047,7 +669,8 @@
           link.click();
         }
       }).catch(function () {
-        restoreCertStyles(cert, origW, origH);
+        cert.style.width = origW;
+        cert.style.height = origH;
         if (btn) {
           btn.disabled = false;
           btn.textContent = btn.dataset.prevText || 'Download Certificate (PNG)';
@@ -1058,163 +681,123 @@
     }, 400);
   }
 
-  // ===== PROGRESS REPORT (for instructor private records) =====
-  function getProgressSnapshot() {
-    const totalModules = MODULES.length;
-    const doneModules = state.completedLessons.length;
-    const examPassed = state.examTaken && state.examScore !== null && state.examScore >= PASS_EXAM;
-    const allModulesDone = doneModules >= totalModules;
-    const completed = allModulesDone && examPassed;
-    // Progress: modules + exam as final unit (same idea as sidebar bar)
-    const totalUnits = totalModules + 1;
-    const doneUnits = doneModules + (state.examTaken ? 1 : 0);
-    const pct = Math.round((doneUnits / totalUnits) * 100);
-    let currentLabel = 'Dashboard';
-    if (state.currentModule === 'exam') currentLabel = 'Final Exam';
-    else if (state.currentModule === 'cert') currentLabel = 'Certificate';
-    else if (typeof state.currentModule === 'number' && state.currentModule >= 1) {
-      currentLabel = 'Module ' + state.currentModule;
-    }
-    return {
-      name: (state.learnerName || '').trim() || 'Unknown',
-      completed: completed,
-      status: completed ? 'completed' : (doneModules > 0 || state.examTaken ? 'in_progress' : 'not_started'),
-      modulesDone: doneModules,
-      totalModules: totalModules,
-      progressPct: pct,
-      currentLabel: currentLabel,
-      examTaken: state.examTaken,
-      examScore: state.examScore,
-      examLabel: state.examTaken && state.examScore !== null ? (state.examScore + '/25') : 'Not taken',
-      date: new Date().toISOString().slice(0, 10)
-    };
+  // ===== QUIZ & EXAM =====
+  function selectOption(moduleId, qIdx, optIdx) {
+    const qKey = moduleId + '-' + qIdx;
+    state.examAnswers[qKey] = optIdx;
+    saveState();
   }
 
-  function buildProgressReportMarkdown() {
-    const s = getProgressSnapshot();
-    const lines = [];
-    lines.push('# AI Awareness V1 — Progress Report');
-    lines.push('');
-    lines.push('| Field | Value |');
-    lines.push('|-------|-------|');
-    lines.push('| Name | ' + s.name + ' |');
-    lines.push('| Status | ' + s.status + ' |');
-    lines.push('| Modules | ' + s.modulesDone + '/' + s.totalModules + ' |');
-    lines.push('| Progress | ' + s.progressPct + '% |');
-    lines.push('| Current | ' + s.currentLabel + ' |');
-    lines.push('| Exam | ' + s.examLabel + ' |');
-    lines.push('| Report date | ' + s.date + ' |');
-    lines.push('| Course | AI Awareness V1 Foundations |');
-    lines.push('');
-    if (s.completed) {
-      lines.push('## Suggested LEARNERS.md row (Completed)');
-      lines.push('');
-      lines.push('| Name | Started | Completed | Modules | Exam score | Certificate ID | Notes |');
-      lines.push('|------|---------|-----------|--------:|------------|----------------|-------|');
-      lines.push('| ' + s.name + ' | ' + s.date + ' | ' + s.date + ' | ' + s.modulesDone + '/' + s.totalModules + ' | ' + s.examLabel + ' | (from certificate) |  |');
-    } else {
-      lines.push('## Suggested LEARNERS.md row (In progress)');
-      lines.push('');
-      lines.push('| Name | Last update | Modules done | Progress % | Current module | Exam | Notes |');
-      lines.push('|------|-------------|-------------:|-----------:|----------------|------|-------|');
-      lines.push('| ' + s.name + ' | ' + s.date + ' | ' + s.modulesDone + '/' + s.totalModules + ' | ' + s.progressPct + '% | ' + s.currentLabel + ' | ' + s.examLabel + ' |  |');
-    }
-    lines.push('');
-    lines.push('_Send this report to the course owner so they can update the private records file._');
-    return lines.join('\n');
+  function submitQuiz(moduleId) {
+    const mod = MODULES.find(function (m) { return m.id === moduleId; });
+    if (!mod || !mod.questions) return;
+
+    let score = 0;
+    mod.questions.forEach(function (q, i) {
+      const selected = document.querySelector('input[name="quiz-' + moduleId + '-' + i + '"]:checked');
+      if (selected && parseInt(selected.value, 10) === q.answer) {
+        score++;
+      }
+    });
+
+    state.quizScores[moduleId] = score;
+    state.completedLessons.push(moduleId);
+    state.completedLessons = state.completedLessons.filter(function (v, i, a) { return a.indexOf(v) === i; });
+    saveState();
+    updateProgress();
+    unlockNextTrack();
+
+    toast(score >= PASS_QUIZ ? 'Quiz passed! (' + score + '/5)' : 'Quiz score: ' + score + '/5');
+    navigateTo(0);
   }
 
-  function shareProgressReport() {
-    if (!state.learnerName) {
-      showNamePrompt();
-      toast('Enter your name first, then share progress.');
-      return;
-    }
-    const report = buildProgressReportMarkdown();
-    // Also stash a local copy the instructor can import on admin board (same browser only)
-    try {
-      const snap = getProgressSnapshot();
-      const roster = JSON.parse(localStorage.getItem(ADMIN_KEY) || '[]');
-      const entry = {
-        name: snap.name,
-        status: snap.status,
-        modules: snap.modulesDone + '/' + snap.totalModules,
-        progress: snap.progressPct + '%',
-        exam: snap.examLabel,
-        date: snap.date,
-        current: snap.currentLabel
-      };
-      const idx = roster.findIndex(function (r) { return r.name === entry.name; });
-      if (idx >= 0) roster[idx] = entry;
-      else roster.push(entry);
-      localStorage.setItem(ADMIN_KEY, JSON.stringify(roster));
-    } catch (_) { /* ignore */ }
+  function showExam() {
+    const dash = document.getElementById('dashboard');
+    const container = document.getElementById('moduleViews');
+    if (dash) dash.style.display = 'none';
+    if (!container) return;
 
-    const done = function () {
-      toast('Progress report copied. Paste it in an email or chat to the course owner.');
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(report).then(done).catch(function () {
-        window.prompt('Copy this progress report:', report);
+    let html = 
+      '<section class="module-view active" id="examContainer">' +
+      '<div class="exam-header">' +
+      '<h2>Final Examination</h2>' +
+      '<p>Test your knowledge across all modules. Pass mark: 18/25</p>' +
+      '</div>' +
+      '<div class="exam-content">' + buildExamHtml() + '</div>' +
+      '<div class="section-nav">' +
+      '<button class="btn btn-outline" onclick="navigateTo(0)">Back to Dashboard</button>' +
+      '<button class="btn btn-primary" onclick="submitExam()">Submit Exam</button>' +
+      '</div>' +
+      '</section>';
+
+    container.innerHTML = html;
+    attachExamOptionHandlers();
+  }
+
+  function buildExamHtml() {
+    if (!EXAM_QUESTIONS || !EXAM_QUESTIONS.length) {
+      return '<p class="empty-state">No exam questions available.</p>';
+    }
+    let html = '<form id="exam-form">';
+    EXAM_QUESTIONS.forEach(function (q, i) {
+      html += '<div class="question">';
+      html += '<div class="q-text">' + (i + 1) + '. ' + escapeHtml(q.q) + '</div>';
+      html += '<div class="options">';
+      q.options.forEach(function (opt, j) {
+        html += '<label><input type="radio" name="exam-' + i + '" value="' + j + '">' + escapeHtml(opt) + '</label>';
       });
-    } else {
-      window.prompt('Copy this progress report:', report);
-    }
+      html += '</div></div>';
+    });
+    html += '</form>';
+    return html;
   }
 
-  function exportProgressSummary() {
-    if (!state.learnerName) {
-      showNamePrompt();
-      toast('Enter your name first.');
-      return;
+  function attachExamOptionHandlers() {
+    document.querySelectorAll('#examContainer .question .options label').forEach(function (label) {
+      label.addEventListener('click', function () {
+        this.closest('.question').querySelectorAll('label').forEach(function (l) { l.classList.remove('selected'); });
+        this.classList.add('selected');
+      });
+    });
+  }
+
+  function submitExam() {
+    let score = 0;
+    EXAM_QUESTIONS.forEach(function (q, i) {
+      const selected = document.querySelector('input[name="exam-' + i + '"]:checked');
+      if (selected && parseInt(selected.value, 10) === q.answer) {
+        score++;
+      }
+    });
+
+    state.examScores[activeTrack] = score;
+    state.examTaken[activeTrack] = true;
+    saveState();
+    updateProgress();
+    unlockNextTrack();
+
+    const examEl = document.getElementById('examContainer');
+    if (examEl) examEl.style.display = 'none';
+    if (score >= PASS_EXAM) {
+      toast('Congratulations! Exam passed (' + score + '/25). Certificate unlocked.');
+      showCertificate(activeTrack);
+    } else {
+      toast('Exam score: ' + score + '/25. ' + (PASS_EXAM - score) + ' points needed to pass.');
+      navigateTo(0);
     }
-    const s = getProgressSnapshot();
-    const w = window.open('', '_blank');
-    if (!w) {
-      toast('Pop-up blocked. Allow pop-ups to export.');
-      return;
-    }
-    const rows = MODULES.map(function (mod, i) {
-      const idx = i + 1;
-      const done = state.completedLessons.indexOf(idx) !== -1;
-      const sc = state.quizScores[idx];
-      return '<tr><td>' + idx + '</td><td>' + escapeHtml(mod.title) + '</td><td>' +
-        (done ? 'Completed' : 'In progress') + '</td><td>' +
-        (sc !== undefined ? sc + '/5' : '—') + '</td></tr>';
-    }).join('');
-    w.document.write(
-      '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Progress Summary — ' + escapeHtml(s.name) + '</title>' +
-      '<style>body{font-family:Inter,system-ui,sans-serif;padding:32px;color:#1c1917}' +
-      'h1{font-size:22px;margin:0 0 8px}p{color:#57534e}table{width:100%;border-collapse:collapse;margin-top:20px}' +
-      'th,td{border:1px solid #e7e5e4;padding:8px 10px;text-align:left;font-size:13px}th{background:#fafaf9}' +
-      '.meta{display:flex;gap:16px;flex-wrap:wrap;margin:16px 0;font-size:13px}' +
-      '@media print{button{display:none}}</style></head><body>' +
-      '<h1>AI Awareness V1 — Progress Summary</h1>' +
-      '<p>Foundations track · Workplace AI literacy</p>' +
-      '<div class="meta"><span><strong>Learner:</strong> ' + escapeHtml(s.name) + '</span>' +
-      '<span><strong>Status:</strong> ' + escapeHtml(s.status) + '</span>' +
-      '<span><strong>Progress:</strong> ' + s.progressPct + '%</span>' +
-      '<span><strong>Exam:</strong> ' + escapeHtml(s.examLabel) + '</span>' +
-      '<span><strong>Date:</strong> ' + s.date + '</span></div>' +
-      '<table><thead><tr><th>#</th><th>Module</th><th>Status</th><th>Quiz</th></tr></thead><tbody>' +
-      rows + '</tbody></table>' +
-      '<p style="margin-top:24px;font-size:12px;color:#78716c">Generated from AI Awareness for the Workplace · Author: Ritche Gerona</p>' +
-      '<button onclick="window.print()" style="margin-top:16px;padding:10px 16px">Print / Save as PDF</button>' +
-      '</body></html>'
-    );
-    w.document.close();
   }
 
   // ===== DASHBOARD =====
   function renderDashboardCards() {
     const grid = document.getElementById('moduleCards');
     if (!grid) return;
+    const trackModules = getCurrentTrackModules();
     let html = '';
-    MODULES.forEach(function (mod, i) {
+    trackModules.forEach(function (mod, i) {
       const idx = i + 1;
-      const done = state.completedLessons.indexOf(idx) !== -1;
+      const done = state.completedLessons.indexOf(mod.id) !== -1;
       html +=
-        '<div class="dash-card module-card interactive-card' + (done ? ' done' : '') + '" data-nav="' + idx + '" role="button" tabindex="0" style="--i:' + i + '">' +
+        '<div class="dash-card module-card interactive-card' + (done ? ' done' : '') + '" data-nav="' + mod.id + '" role="button" tabindex="0" style="--i:' + i + '">' +
         '<div class="module-card-top">' +
         '<div class="icon">' + (idx < 10 ? '0' + idx : idx) + '</div>' +
         '<span class="mod-status">' + (done ? 'Completed' : 'Not started') + '</span>' +
@@ -1225,31 +808,59 @@
         '</div>';
     });
     grid.innerHTML = html;
-    // animate mini-bars after paint
+
     requestAnimationFrame(function () {
       grid.querySelectorAll('.module-card.done .mini-bar > i').forEach(function (el) {
         el.style.width = '100%';
       });
     });
+
     grid.querySelectorAll('[data-nav]').forEach(function (el) {
-      const go = function () { navigateTo(parseInt(el.getAttribute('data-nav'), 10)); };
-      el.addEventListener('click', go);
+      el.addEventListener('click', function () {
+        navigateTo(parseInt(el.getAttribute('data-nav'), 10));
+      });
       el.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          go();
+          navigateTo(parseInt(el.getAttribute('data-nav'), 10));
         }
       });
     });
   }
 
+  // ===== NAVIGATION =====
+  function navigateTo(moduleOrPage) {
+    const dash = document.getElementById('dashboard');
+    const moduleViews = document.getElementById('moduleViews');
+
+    if (moduleOrPage === 0) {
+      if (dash) dash.style.display = 'block';
+      if (moduleViews) moduleViews.innerHTML = '';
+    } else if (moduleOrPage === 'exam') {
+      if (dash) dash.style.display = 'none';
+      showExam();
+    } else if (moduleOrPage === 'cert') {
+      showCertificate(activeTrack);
+    } else {
+      const moduleId = parseInt(moduleOrPage, 10);
+      const mod = MODULES.find(function (m) { return m.id === moduleId; });
+      if (mod && mod.track !== activeTrack) {
+        toast('Switch to ' + mod.track + ' track to view this module.');
+        return;
+      }
+      if (dash) dash.style.display = 'none';
+      renderModule(moduleId);
+      closeSidebarIfMobile();
+      state.currentModule = moduleId;
+      state.lastModule = moduleId;
+      saveState();
+    }
+  }
+
   // ===== SERVICE WORKER =====
-  // Clear old SW caches so users always see the latest author/content updates.
-  // (Previous SW was serving a stale course without the author section.)
   function registerServiceWorker() {
     if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
 
-    // Unregister any existing service workers and wipe caches
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function (regs) {
         regs.forEach(function (reg) { reg.unregister(); });
@@ -1262,32 +873,6 @@
     }
   }
 
-  function applyCourseVersionLabels() {
-    const pill = document.getElementById('headerVersionPill');
-    const badge = document.getElementById('sidebarVersionBadge');
-    const label = 'Version ' + ACTIVE_COURSE.version + ' · ' + ACTIVE_COURSE.level;
-    if (pill) pill.textContent = label;
-    if (badge) badge.textContent = label;
-  }
-
-  // ===== GLOBALS (onclick in HTML shell) =====
-  window.navigateTo = navigateTo;
-  window.saveName = saveName;
-  window.showNamePrompt = showNamePrompt;
-  window.openAuthorModal = openAuthorModal;
-  window.closeAuthorModal = closeAuthorModal;
-  window.shareProgressReport = shareProgressReport;
-  window.exportProgressSummary = exportProgressSummary;
-  window.toggleTheme = toggleTheme;
-  window.downloadCertificatePNG = downloadCertificatePNG;
-  window.showCertificate = showCertificate;
-  window.submitQuiz = submitQuiz;
-  window.resetQuiz = resetQuiz;
-  window.selectOption = selectOption;
-  window.submitExam = submitExam;
-  window.resetExam = resetExam;
-  window.selectExamOption = selectExamOption;
-
   // ===== INIT =====
   function init() {
     if (typeof MODULES === 'undefined' || !MODULES.length) {
@@ -1297,24 +882,81 @@
     loadState();
     applyTheme(getTheme());
     initThemeToggle();
-    applyCourseVersionLabels();
     initMobileNav();
     initNameModal();
-    initAuthorModal();
+
+    if (!activeTrack) activeTrack = 'foundations';
+    const trackInfo = COURSE_TRACKS[activeTrack];
+    const pill = document.getElementById('headerVersionPill');
+    const badge = document.getElementById('sidebarVersionBadge');
+    const label = 'Part ' + trackInfo.version + ' • ' + trackInfo.level;
+    if (pill) pill.textContent = label;
+    if (badge) badge.textContent = label;
+
+    const trackModulesTitle = document.getElementById('trackModulesTitle');
+    if (trackModulesTitle) trackModulesTitle.textContent = 'Part ' + trackInfo.version + ' Modules';
+
+    // Add click handlers for track selection
+    const versionPath = document.getElementById('versionPath');
+    if (versionPath) {
+      versionPath.querySelectorAll('.version-card').forEach(function (card) {
+        const track = card.getAttribute('data-track');
+        card.addEventListener('click', function () {
+          if (!isTrackUnlocked(track)) {
+            toast('Complete the previous track to unlock this one.');
+            return;
+          }
+          setActiveTrack(track);
+        });
+        card.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (!isTrackUnlocked(track)) {
+              toast('Complete the previous track to unlock this one.');
+              return;
+            }
+            setActiveTrack(track);
+          }
+        });
+      });
+    }
+
     renderSidebar();
     renderDashboardCards();
-    updateContinueBar();
     updateProgress();
+    updateContinueBar();
 
-    const dash = document.getElementById('dashboard');
+    const heroRing = document.getElementById('heroProgressRing');
+    if (heroRing) {
+      const heroDone = document.getElementById('heroModulesDone');
+      const pct = parseInt(heroDone?.textContent || '0', 10);
+      const dash = Math.max(0, Math.min(1, (12 - pct) / 12));
+      heroRing.style.strokeDasharray = '251.2';
+      heroRing.style.strokeDashoffset = 251.2 * dash;
+    }
+
     if (dash) dash.style.display = 'block';
 
     if (!state.learnerName) {
       showNamePrompt();
+    } else {
+      updateContinueBar();
     }
 
     registerServiceWorker();
   }
+
+  // ===== GLOBALS =====
+  window.navigateTo = navigateTo;
+  window.setActiveTrack = setActiveTrack;
+  window.submitQuiz = submitQuiz;
+  window.submitExam = submitExam;
+  window.toggleTheme = toggleTheme;
+  window.downloadCertificatePNG = downloadCertificatePNG;
+  window.showNamePrompt = showNamePrompt;
+  window.saveName = saveName;
+  window.openAuthorModal = openAuthorModal;
+  window.closeAuthorModal = closeAuthorModal;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
@@ -1322,7 +964,5 @@
     init();
   }
 
-  try {
-    console.info('AI Awareness Course V1.0.0 Foundations — production ready');
-  } catch (_) { /* ignore */ }
+  console.info('AI Awareness Course — Unified Multi-Track — Ready');
 })();
