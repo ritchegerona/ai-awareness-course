@@ -10,7 +10,8 @@ const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
 
-const ROOT = path.join(__dirname, 'public');
+const PUBLIC_ROOT = path.join(__dirname, 'public');
+const PRIVATE_ROOT = path.join(__dirname, 'private');
 const PORT = Number(process.env.PORT) || 3000;
 const HOST = process.env.HOST || '127.0.0.1';
 
@@ -67,7 +68,14 @@ const server = http.createServer(function (req, res) {
 
   if (pathname === '/') pathname = '/index.html';
 
-  let filePath = safeJoin(ROOT, pathname);
+  // Check if requesting private folder
+  let root = PUBLIC_ROOT;
+  if (pathname.startsWith('/private/')) {
+    root = PRIVATE_ROOT;
+    pathname = pathname.replace('/private/', '/');
+  }
+
+  let filePath = safeJoin(root, pathname);
   if (!filePath) {
     send(res, 403, 'Forbidden', { 'Content-Type': 'text/plain; charset=utf-8' });
     return;
@@ -117,7 +125,8 @@ server.listen(PORT, HOST, function () {
   console.log('');
   console.log('  AI Awareness Course');
   console.log('  --------------------');
-  console.log('  Serving: ' + ROOT);
+  console.log('  Public:   ' + PUBLIC_ROOT);
+  console.log('  Private:  ' + PRIVATE_ROOT);
   console.log('  Open:    ' + url);
   console.log('  Press Ctrl+C to stop');
   console.log('');
