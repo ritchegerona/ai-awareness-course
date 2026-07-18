@@ -1179,6 +1179,7 @@ const defaultState = () => ({
   window.setActiveTrack = setActiveTrack;
   window.submitQuiz = submitQuiz;
   window.submitExam = submitExam;
+  window.quizCompleted = quizCompleted;
   window.toggleTheme = toggleTheme;
   window.downloadCertificatePNG = downloadCertificatePNG;
   window.showNamePrompt = showNamePrompt;
