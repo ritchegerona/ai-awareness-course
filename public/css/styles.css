@@ -2493,3 +2493,21 @@ html[data-theme="dark"] .page-header .meta-link-dashboard:hover {
 .version-card.locked p {
   color: var(--text-faint);
 }
+
+/* Failed module status in sidebar */
+.module-item.failed .module-title {
+  color: var(--danger);
+}
+.module-item.failed .module-num {
+  background: var(--danger-light);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+html[data-theme="dark"] .module-item.failed .module-title {
+  color: var(--danger);
+}
+html[data-theme="dark"] .module-item.failed .module-num {
+  background: var(--danger-light);
+  border-color: var(--danger);
+  color: var(--danger);
+}

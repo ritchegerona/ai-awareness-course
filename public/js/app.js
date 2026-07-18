@@ -46,22 +46,23 @@
   const THEME_KEY = 'aiCourseTheme';
   const ADMIN_KEY = 'aiCourseAdminRoster_unified';
 
-  const defaultState = () => ({
-    currentModule: 0,
-    completedLessons: [],
-    quizScores: {},
-    examScores: {},
-    examTaken: {},
-    learnerName: '',
-    examAnswers: {},
-    lastModule: 0,
-    trackProgress: {
-      foundations: 0,
-      intermediate: 0,
-      advanced: 0
-    },
-    unlockedTracks: ['foundations']
-  });
+const defaultState = () => ({
+  currentModule: 0,
+  completedLessons: [],
+  quizScores: {},
+  examScores: {},
+  examTaken: {},
+  learnerName: '',
+  examAnswers: {},
+  lastModule: 0,
+  trackProgress: {
+    foundations: 0,
+    intermediate: 0,
+    advanced: 0
+  },
+  unlockedTracks: ['foundations'],
+  quizAttempts: {}
+});
 
   let state = defaultState();
 
@@ -450,10 +451,13 @@
     trackModules.forEach(function (mod, i) {
       const idx = i + 1;
       const done = state.completedLessons.indexOf(mod.id) !== -1;
+      const attempts = state.quizAttempts[mod.id] || 0;
+      const failed = attempts > 0 && !done;
+      const status = done ? '' : (failed ? ' · Attempt ' + attempts + '/FAILED' : '');
       html += 
-        '<li class="module-item' + (done ? ' done' : '') + '" data-nav="' + mod.id + '">' +
+        '<li class="module-item' + (done ? ' done' : (failed ? ' failed' : '')) + '" data-nav="' + mod.id + '">' +
         '<span class="module-num">' + (idx < 10 ? '0' + idx : idx) + '</span>' +
-        '<span class="module-title">' + escapeHtml(mod.title) + '</span>' +
+        '<span class="module-title">' + escapeHtml(mod.title) + status + '</span>' +
         '</li>';
     });
     // Add exam and about items
@@ -701,14 +705,22 @@
     });
 
     state.quizScores[moduleId] = score;
-    state.completedLessons.push(moduleId);
-    state.completedLessons = state.completedLessons.filter(function (v, i, a) { return a.indexOf(v) === i; });
+
+    // Track attempts for failed quizzes and only mark complete on pass
+    if (score >= PASS_QUIZ) {
+      state.completedLessons.push(moduleId);
+      state.completedLessons = state.completedLessons.filter(function (v, i, a) { return a.indexOf(v) === i; });
+    } else {
+      // Increment attempt count for failed quizzes
+      state.quizAttempts[moduleId] = (state.quizAttempts[moduleId] || 0) + 1;
+    }
+
     saveState();
     updateProgress();
     renderSidebar();
     unlockNextTrack();
 
-    toast(score >= PASS_QUIZ ? 'Quiz passed! (' + score + '/5)' : 'Quiz score: ' + score + '/5');
+    toast(score >= PASS_QUIZ ? 'Quiz passed! (' + score + '/5)' : 'Quiz score: ' + score + '/5 · Attempt ' + (state.quizAttempts[moduleId] || 1) + '/FAILED');
     navigateTo(0);
   }
 
