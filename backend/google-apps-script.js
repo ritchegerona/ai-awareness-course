@@ -2,14 +2,16 @@
  * AI Awareness Course - Google Apps Script Backend
  * 
  * Instructions to deploy:
- * 1. Go to script.google.com
- * 2. Create a new project
- * 3. Paste this code
- * 4. Create a Google Sheet named "AI Course Learners"
- * 5. Deploy as Web App (Executions: Me, Access: Anyone)
- * 6. Copy the web app URL and paste into app.js BACKEND_URL
+ * 1. Create a Google Sheet with this URL:
+ *    https://docs.google.com/spreadsheets/d/1IgoQmJrNu39oxysjEFbtTcxaDdqi2bXq9bGmGMGpkak/edit
+ * 2. Go to script.google.com
+ * 3. Create a new project
+ * 4. Link to the spreadsheet (Project Settings → "1IgoQmJrNu39oxysjEFbtTcxaDdqi2bXq9bGmGMGpkak")
+ * 5. Paste this code into Code.gs
+ * 6. Deploy as Web App (Executions: Me, Access: Anyone)
  */
 
+const SPREADSHEET_ID = '1IgoQmJrNu39oxysjEFbtTcxaDdqi2bXq9bGmGMGpkak';
 const SHEET_NAME = 'Learners';
 
 function doPost(e) {
@@ -23,7 +25,7 @@ function doPost(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
     
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     let sheet = ss.getSheetByName(SHEET_NAME);
     
     // Create sheet if it doesn't exist
