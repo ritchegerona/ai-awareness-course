@@ -705,6 +705,7 @@
     state.completedLessons = state.completedLessons.filter(function (v, i, a) { return a.indexOf(v) === i; });
     saveState();
     updateProgress();
+    renderSidebar();
     unlockNextTrack();
 
     toast(score >= PASS_QUIZ ? 'Quiz passed! (' + score + '/5)' : 'Quiz score: ' + score + '/5');
