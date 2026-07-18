@@ -1902,9 +1902,9 @@ body.sidebar-open { overflow: hidden; }
 }
 
 html[data-theme="dark"] .toast {
-  background: var(--accent);
+  background: #0f766e;
   border: 1px solid var(--accent-border);
-  color: #042f2e;
+  color: #fff;
 }
 html[data-theme="dark"] .toast.success {
   background: #059669;
