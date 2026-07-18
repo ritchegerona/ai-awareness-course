@@ -814,11 +814,22 @@ const defaultState = () => ({
     trackModules.forEach(function (mod, i) {
       const idx = i + 1;
       const done = state.completedLessons.indexOf(mod.id) !== -1;
+      const attempts = state.quizAttempts[mod.id] || 0;
+      const failed = attempts > 0 && !done;
+      let statusText = 'Not started';
+      let cardClass = '';
+      if (done) {
+        statusText = 'Completed';
+        cardClass = ' done';
+      } else if (failed) {
+        statusText = attempts + '/FAILED - TRY AGAIN';
+        cardClass = ' failed';
+      }
       html +=
-        '<div class="dash-card module-card interactive-card' + (done ? ' done' : '') + '" data-nav="' + mod.id + '" role="button" tabindex="0" style="--i:' + i + '">' +
+        '<div class="dash-card module-card interactive-card' + cardClass + '" data-nav="' + mod.id + '" role="button" tabindex="0" style="--i:' + i + '">' +
         '<div class="module-card-top">' +
         '<div class="icon">' + (idx < 10 ? '0' + idx : idx) + '</div>' +
-        '<span class="mod-status">' + (done ? 'Completed' : 'Not started') + '</span>' +
+        '<span class="mod-status">' + statusText + '</span>' +
         '</div>' +
         '<h3>' + escapeHtml(mod.title) + '</h3>' +
         '<p>' + escapeHtml(mod.subtitle) + ' · ' + escapeHtml(mod.duration) + '</p>' +
