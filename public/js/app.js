@@ -305,6 +305,8 @@ const defaultState = () => ({
     if (modal) modal.classList.remove('active');
     updateContinueBar();
     updateProgress();
+    // Auto-share progress if online
+    shareProgress();
   }
 
   function initNameModal() {
@@ -317,6 +319,49 @@ const defaultState = () => ({
         }
       });
       if (state.learnerName) input.value = state.learnerName;
+    }
+  }
+
+  // ===== SHARE PROGRESS =====
+  function isOnline() {
+    return navigator.onLine !== false;
+  }
+
+  function shareProgress() {
+    if (!isOnline() || !state.learnerName) return;
+
+    const trackInfo = COURSE_TRACKS[activeTrack];
+    const trackModules = getCurrentTrackModules();
+    const doneModules = trackModules.filter(function (m) {
+      return state.completedLessons.indexOf(m.id) !== -1;
+    }).length;
+    const pct = Math.round((doneModules / trackModules.length) * 100);
+    const examScore = state.examScores[activeTrack];
+    const examTaken = state.examTaken[activeTrack];
+
+    const entry = {
+      name: state.learnerName,
+      status: examTaken && examScore >= PASS_EXAM ? 'completed' : (doneModules > 0 ? 'in_progress' : 'not_started'),
+      modules: doneModules + '/' + trackModules.length + ' (Part ' + trackInfo.version + ')',
+      progress: pct + '%',
+      exam: examTaken ? examScore + '/25' : '—',
+      date: new Date().toISOString().slice(0, 10),
+      current: doneModules > 0 && !examTaken ? ('Module ' + state.lastModule) : '—'
+    };
+
+    try {
+      const ROSTER_KEY = 'aiCourseAdminRoster_unified';
+      let roster = JSON.parse(localStorage.getItem(ROSTER_KEY) || '[]');
+      const existingIndex = roster.findIndex(function (r) { return r.name === entry.name; });
+      if (existingIndex >= 0) {
+        roster[existingIndex] = entry;
+      } else {
+        roster.push(entry);
+      }
+      localStorage.setItem(ROSTER_KEY, JSON.stringify(roster));
+      toast('Progress automatically shared ✓');
+    } catch (e) {
+      // Silently fail - sharing is optional
     }
   }
 
@@ -724,6 +769,8 @@ const defaultState = () => ({
     updateProgress();
     renderSidebar();
     unlockNextTrack();
+    // Auto-share progress after quiz
+    shareProgress();
 
     toast(score >= PASS_QUIZ ? 'Quiz passed! (' + score + '/5)' : 'Quiz score: ' + score + '/5 · Attempt ' + (state.quizAttempts[moduleId] || 1) + '/FAILED');
     navigateTo(0);
@@ -793,6 +840,8 @@ const defaultState = () => ({
     saveState();
     updateProgress();
     unlockNextTrack();
+    // Auto-share progress after exam
+    shareProgress();
 
     const examEl = document.getElementById('examContainer');
     if (examEl) examEl.style.display = 'none';
