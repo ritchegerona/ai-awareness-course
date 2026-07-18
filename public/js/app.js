@@ -608,6 +608,16 @@ const defaultState = () => ({
       label.addEventListener('click', function () {
         const input = this.querySelector('input[type="radio"]');
         if (input) {
+          const nameParts = input.getAttribute('name').split('-');
+          // name format: quiz-{moduleId}-{questionIndex}
+          if (nameParts[0] === 'quiz' && nameParts.length >= 3) {
+            var moduleId = parseInt(nameParts[1], 10);
+            var qIdx = parseInt(nameParts[2], 10);
+            var optIdx = parseInt(input.value, 10);
+            if (!isNaN(moduleId) && !isNaN(qIdx) && !isNaN(optIdx)) {
+              selectOption(moduleId, qIdx, optIdx);
+            }
+          }
           this.closest('.question').querySelectorAll('label').forEach(function (l) { l.classList.remove('selected'); });
           this.classList.add('selected');
         }
@@ -789,6 +799,7 @@ const defaultState = () => ({
     saveState();
     updateProgress();
     renderSidebar();
+    renderDashboardCards();
     unlockNextTrack();
     // Auto-share progress after quiz
     shareProgress();
@@ -860,6 +871,7 @@ const defaultState = () => ({
     state.examTaken[activeTrack] = true;
     saveState();
     updateProgress();
+    renderDashboardCards();
     unlockNextTrack();
     // Auto-share progress after exam
     shareProgress();
@@ -944,16 +956,108 @@ const defaultState = () => ({
     return true;
   }
 
+  // ===== SHARE / EXPORT =====
+  function shareProgressReport() {
+    var name = state.learnerName;
+    if (!name) {
+      toast('Please enter your name first.');
+      return;
+    }
+    var trackInfo = COURSE_TRACKS[activeTrack];
+    var trackModules = getCurrentTrackModules();
+    var doneModules = trackModules.filter(function (m) {
+      return state.completedLessons.indexOf(m.id) !== -1;
+    }).length;
+    var pct = Math.round((doneModules / trackModules.length) * 100);
+    var report =
+      'AI Awareness Course - Progress Report\n' +
+      '====================================\n' +
+      'Name: ' + name + '\n' +
+      'Track: Part ' + trackInfo.version + ' - ' + trackInfo.level + '\n' +
+      'Progress: ' + doneModules + '/' + trackModules.length + ' modules (' + pct + '%)\n' +
+      'Exam: ' + (state.examTaken[activeTrack] ? state.examScores[activeTrack] + '/25' : 'Not taken') + '\n' +
+      'Date: ' + new Date().toLocaleDateString() + '\n\n' +
+      'Completed Modules:\n';
+    
+    trackModules.forEach(function (mod) {
+      var done = state.completedLessons.indexOf(mod.id) !== -1;
+      report += (done ? '✓ ' : '○ ') + mod.title + '\n';
+    });
+    
+    // Copy to clipboard
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(report).then(function () {
+        toast('Progress report copied to clipboard ✓');
+      }).catch(function () {
+        fallbackCopyReport(report);
+      });
+    } else {
+      fallbackCopyReport(report);
+    }
+  }
+
+  function fallbackCopyReport(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      toast('Progress report copied ✓');
+    } catch (e) {
+      toast('Could not copy. Select text manually.');
+    }
+    document.body.removeChild(ta);
+  }
+
+  function exportProgressSummary() {
+    var name = state.learnerName || 'Learner';
+    var trackInfo = COURSE_TRACKS[activeTrack];
+    var trackModules = getCurrentTrackModules();
+    var doneModules = trackModules.filter(function (m) {
+      return state.completedLessons.indexOf(m.id) !== -1;
+    }).length;
+    var pct = Math.round((doneModules / trackModules.length) * 100);
+    var lines = [];
+    lines.push('Module,Status,Score');
+    trackModules.forEach(function (mod) {
+      var status = state.completedLessons.indexOf(mod.id) !== -1 ? 'Completed' : 'Not started';
+      var score = typeof state.quizScores[mod.id] === 'number' ? state.quizScores[mod.id] + '/5' : '—';
+      lines.push('"' + mod.title + '","' + status + '","' + score + '"');
+    });
+    lines.push('');
+    lines.push('Exam,' + (state.examTaken[activeTrack] ? 'Taken' : 'Not taken') + ',' + (state.examScores[activeTrack] || 0) + '/25');
+    lines.push('Overall Progress,' + pct + '%');
+    
+    var csv = lines.join('\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var filename = safeFileName(name) + '-AI-Course-Progress-Part' + trackInfo.version + '.csv';
+    if (navigator.msSaveBlob) {
+      navigator.msSaveBlob(blob, filename);
+    } else {
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(function () { URL.revokeObjectURL(link.href); }, 100);
+    }
+    toast('Progress exported as CSV ✓');
+  }
+
   // ===== NAVIGATION =====
   function navigateTo(moduleOrPage) {
-    const dash = document.getElementById('dashboard');
+    const dashEl = document.getElementById('dashboard');
     const moduleViews = document.getElementById('moduleViews');
 
     if (moduleOrPage === 0) {
-      if (dash) dash.style.display = 'block';
+      if (dashEl) dashEl.style.display = 'block';
       if (moduleViews) moduleViews.innerHTML = '';
     } else if (moduleOrPage === 'exam') {
-      if (dash) dash.style.display = 'none';
+      if (dashEl) dashEl.style.display = 'none';
       showExam();
     } else if (moduleOrPage === 'cert') {
       showCertificate(activeTrack);
@@ -969,7 +1073,7 @@ const defaultState = () => ({
         toast('Complete the previous module to unlock this one.');
         return;
       }
-      if (dash) dash.style.display = 'none';
+      if (dashEl) dashEl.style.display = 'none';
       renderModule(moduleId);
       closeSidebarIfMobile();
       state.currentModule = moduleId;
@@ -1051,12 +1155,15 @@ const defaultState = () => ({
     if (heroRing) {
       const heroDone = document.getElementById('heroModulesDone');
       const pct = parseInt(heroDone?.textContent || '0', 10);
-      const dash = Math.max(0, Math.min(1, (12 - pct) / 12));
+      const trackModules = getCurrentTrackModules();
+      const totalModules = trackModules.length || 12;
+      const dash = Math.max(0, Math.min(1, (totalModules - pct) / totalModules));
       heroRing.style.strokeDasharray = '251.2';
       heroRing.style.strokeDashoffset = 251.2 * dash;
     }
 
-    if (dash) dash.style.display = 'block';
+    const dashboardEl = document.getElementById('dashboard');
+    if (dashboardEl) dashboardEl.style.display = 'block';
 
     if (!state.learnerName) {
       showNamePrompt();
@@ -1078,6 +1185,9 @@ const defaultState = () => ({
   window.saveName = saveName;
   window.openAuthorModal = openAuthorModal;
   window.closeAuthorModal = closeAuthorModal;
+  window.shareProgressReport = shareProgressReport;
+  window.exportProgressSummary = exportProgressSummary;
+  window.selectOption = selectOption;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
