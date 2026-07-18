@@ -18,14 +18,18 @@ function doPost(e) {
     // Create sheet if it doesn't exist
     if (!sheet) {
       sheet = ss.insertSheet(SHEET_NAME);
+    }
+    
+    // Ensure headers exist if the sheet is completely blank
+    if (sheet.getLastRow() === 0) {
       sheet.appendRow(['Timestamp', 'Name', 'Track', 'Status', 'Modules', 'Progress', 'Exam', 'Date', 'Current']);
     }
     
     // Check if learner already exists
-    const existing = findLearner(sheet, data.name);
+    const existingRow = findLearner(sheet, data.name);
     
     const row = [
-      new Date(),
+      new Date(), // Keeps the update timestamp dynamic
       data.name,
       data.track || 'foundations',
       data.status || 'in_progress',
@@ -36,9 +40,9 @@ function doPost(e) {
       data.current || '—'
     ];
     
-    if (existing) {
-      // Update existing row
-      sheet.getRange(existing, 1, 1, row.length).setValues([row]);
+    if (existingRow) {
+      // Update existing row (Row mapping: 1-indexed)
+      sheet.getRange(existingRow, 1, 1, row.length).setValues([row]);
     } else {
       // Add new row
       sheet.appendRow(row);
@@ -55,17 +59,21 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  // Allow GET requests for testing
   return ContentService
     .createTextOutput(JSON.stringify({ status: 'ok', message: 'AI Course Backend Online' }))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
 function findLearner(sheet, name) {
-  const data = sheet.getDataRange().getValues();
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][1] === name) {
-      return i + 1; // Row number (1-indexed)
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) return null; // Only headers or empty
+  
+  // Optimization: Only pull the Name column (Column B) instead of the whole sheet
+  const names = sheet.getRange(1, 2, lastRow, 1).getValues();
+  
+  for (let i = 1; i < names.length; i++) {
+    if (names[i][0] === name) {
+      return i + 1; // Returns exact 1-indexed row number
     }
   }
   return null;
