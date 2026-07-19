@@ -404,6 +404,39 @@ const defaultState = () => ({
     return state.unlockedTracks.indexOf(track) !== -1;
   }
 
+  function showTrackLockReason(track) {
+    const trackInfo = COURSE_TRACKS[track];
+    if (!trackInfo) return;
+
+    let message = '';
+    if (track === 'intermediate') {
+      const foundationsExamTaken = state.examTaken.foundations;
+      const foundationsExamPassed = (state.examScores.foundations || 0) >= PASS_EXAM;
+      if (!foundationsExamTaken) {
+        message = 'To unlock Part 2 (Intermediate), you must first take and pass the Part 1 Exam.\nComplete all 12 modules in Part 1, then take the Part 1 Exam and score 18/25 or higher.';
+      } else if (!foundationsExamPassed) {
+        message = 'You took the Part 1 Exam but did not pass (need 18/25).\nPlease retake the Part 1 Exam to unlock Part 2.';
+      } else {
+        message = 'Complete Part 1 to unlock Part 2.';
+      }
+    } else if (track === 'advanced') {
+      const intermediateExamTaken = state.examTaken.intermediate;
+      const intermediateExamPassed = (state.examScores.intermediate || 0) >= PASS_EXAM;
+      if (!intermediateExamTaken) {
+        message = 'To unlock Part 3 (Advanced), you must first take and pass the Part 2 Exam.\nComplete all 12 modules in Part 2, then take the Part 2 Exam and score 18/25 or higher.';
+      } else if (!intermediateExamPassed) {
+        message = 'You took the Part 2 Exam but did not pass (need 18/25).\nPlease retake the Part 2 Exam to unlock Part 3.';
+      } else {
+        message = 'Complete Part 2 to unlock Part 3.';
+      }
+    } else {
+      message = 'Complete the previous track to unlock this one.';
+    }
+
+    // Use alert for a more noticeable popup, or create a custom modal
+    alert(message);
+  }
+
   function unlockNextTrack() {
     const currentTrackModules = getCurrentTrackModules();
     const allDone = currentTrackModules.every(function (mod) {
@@ -1211,7 +1244,7 @@ function setActiveTrack(track) {
         const track = card.getAttribute('data-track');
         card.addEventListener('click', function () {
           if (!isTrackUnlocked(track)) {
-            toast('Complete the previous track to unlock this one.');
+            showTrackLockReason(track);
             return;
           }
           setActiveTrack(track);
@@ -1220,7 +1253,7 @@ function setActiveTrack(track) {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             if (!isTrackUnlocked(track)) {
-              toast('Complete the previous track to unlock this one.');
+              showTrackLockReason(track);
               return;
             }
             setActiveTrack(track);
