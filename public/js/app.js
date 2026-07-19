@@ -420,11 +420,17 @@ const defaultState = () => ({
       setActiveTrack('intermediate');
     }
     if (allDone && activeTrack === 'intermediate' && !state.unlockedTracks.includes('advanced')) {
-      state.unlockedTracks.push('advanced');
-      toast('Part 3 (Advanced) is now unlocked!');
-      saveState();
-      // Auto-switch to the newly unlocked track
-      setActiveTrack('advanced');
+      // Safety: ensure Part 2 exam is also passed before unlocking Part 3
+      const intermediateExamPassed = (state.examScores.intermediate || 0) >= PASS_EXAM && state.examTaken.intermediate;
+      if (intermediateExamPassed) {
+        state.unlockedTracks.push('advanced');
+        toast('Part 3 (Advanced) is now unlocked!');
+        saveState();
+        // Auto-switch to the newly unlocked track
+        setActiveTrack('advanced');
+      } else {
+        toast('Complete Part 2 exam to unlock Part 3');
+      }
 }
 }
 
@@ -437,7 +443,21 @@ function updateVersionPathLocks() {
     const statusEl = card.querySelector('.status');
     const statusDot = card.querySelector('.status-dot');
 
-    if (isUnlocked) {
+    // Check if track is fully completed (all modules + exam passed)
+    const trackModules = MODULES.filter(function (m) { return m.track === cardTrack; });
+    const allModsDone = trackModules.every(function (mod) {
+      return state.completedLessons.indexOf(mod.id) !== -1;
+    });
+    const examPassed = (state.examScores[cardTrack] || 0) >= PASS_EXAM && state.examTaken[cardTrack];
+    const isComplete = allModsDone && examPassed;
+
+    if (isComplete) {
+      card.classList.remove('locked');
+      if (statusDot) statusDot.classList.remove('locked');
+      if (statusEl) {
+        statusEl.innerHTML = '<span class="status-dot completed"></span> Completed';
+      }
+    } else if (isUnlocked) {
       card.classList.remove('locked');
       if (statusDot) statusDot.classList.remove('locked');
       if (statusEl) {
@@ -945,6 +965,39 @@ function setActiveTrack(track) {
         '<div class="mini-bar" aria-hidden="true"><i></i></div>' +
         '</div>';
     });
+
+    // Show exam card when all modules are complete
+    const allModsDone = trackModules.every(function (mod) {
+      return state.completedLessons.indexOf(mod.id) !== -1;
+    });
+    if (allModsDone && !state.examTaken[activeTrack]) {
+      html +=
+        '<div class="dash-card exam-card interactive-card" style="--i:' + trackModules.length + '">' +
+        '<div class="module-card-top">' +
+        '<div class="icon">E</div>' +
+        '<span class="mod-status">Ready to take</span>' +
+        '</div>' +
+        '<h3>Final Exam</h3>' +
+        '<p>Test your knowledge across all modules. Pass mark: 18/25</p>' +
+        '<button class="btn btn-primary btn-glow" onclick="navigateTo(\'exam\')">Start Exam</button>' +
+        '</div>';
+    } else if (state.examTaken[activeTrack]) {
+      const score = state.examScores[activeTrack] || 0;
+      const passed = score >= PASS_EXAM;
+      html +=
+        '<div class="dash-card exam-card interactive-card' + (passed ? ' done' : ' failed') + '" style="--i:' + trackModules.length + '">' +
+        '<div class="module-card-top">' +
+        '<div class="icon">★</div>' +
+        '<span class="mod-status">' + (passed ? 'Passed' : 'Failed') + '</span>' +
+        '</div>' +
+        '<h3>Final Exam</h3>' +
+        '<p>Your score: <strong>' + score + '/25</strong> ' + (passed ? '✓' : '✗') + '</p>' +
+        (passed ?
+          '<button class="btn btn-primary" onclick="showCertificate(\'' + activeTrack + '\')">View Certificate</button>' :
+          '<button class="btn btn-primary" onclick="navigateTo(\'exam\')">Retake Exam</button>') +
+        '</div>';
+    }
+
     grid.innerHTML = html;
 
     requestAnimationFrame(function () {
@@ -1179,6 +1232,14 @@ function setActiveTrack(track) {
     updateProgress();
     updateVersionPathLocks();
     updateContinueBar();
+
+    // Safety: fix incorrectly unlocked advanced track
+    const intermediateExamPassed = (state.examScores.intermediate || 0) >= PASS_EXAM && state.examTaken.intermediate;
+    if (state.unlockedTracks.includes('advanced') && !intermediateExamPassed) {
+      state.unlockedTracks = state.unlockedTracks.filter(function (t) { return t !== 'advanced'; });
+      saveState();
+      updateVersionPathLocks();
+    }
 
     const heroRing = document.getElementById('heroProgressRing');
     if (heroRing) {
