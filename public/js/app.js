@@ -577,7 +577,8 @@ function setActiveTrack(track) {
         '</li>';
     });
     // Add exam and about items
-    html += '<li class="module-item exam-item" data-nav="exam"><span class="module-num">E</span><span class="module-title">Final Exam</span></li>';
+    const examLabel = activeTrack === 'advanced' ? 'Final Exam' : ('Part ' + COURSE_TRACKS[activeTrack].version + ' Exam');
+    html += '<li class="module-item exam-item" data-nav="exam"><span class="module-num">E</span><span class="module-title">' + escapeHtml(examLabel) + '</span></li>';
     html += '<li class="module-item about-item" onclick="openAuthorModal()"><span class="num">i</span><span class="module-title">About Author</span></li>';
 
     list.innerHTML = html;
@@ -864,7 +865,7 @@ function setActiveTrack(track) {
     let html = 
       '<section class="module-view active" id="examContainer">' +
       '<div class="exam-header">' +
-      '<h2>Final Examination</h2>' +
+      '<h2>' + (activeTrack === 'advanced' ? 'Final Examination' : ('Part ' + COURSE_TRACKS[activeTrack].version + ' Examination')) + '</h2>' +
       '<p>Test your knowledge across all modules. Pass mark: 18/25</p>' +
       '</div>' +
       '<div class="exam-content">' + buildExamHtml() + '</div>' +
@@ -970,6 +971,7 @@ function setActiveTrack(track) {
     const allModsDone = trackModules.every(function (mod) {
       return state.completedLessons.indexOf(mod.id) !== -1;
     });
+    const examLabel = activeTrack === 'advanced' ? 'Final Exam' : ('Part ' + COURSE_TRACKS[activeTrack].version + ' Exam');
     if (allModsDone && !state.examTaken[activeTrack]) {
       html +=
         '<div class="dash-card exam-card interactive-card" style="--i:' + trackModules.length + '">' +
@@ -977,7 +979,7 @@ function setActiveTrack(track) {
         '<div class="icon">E</div>' +
         '<span class="mod-status">Ready to take</span>' +
         '</div>' +
-        '<h3>Final Exam</h3>' +
+        '<h3>' + escapeHtml(examLabel) + '</h3>' +
         '<p>Test your knowledge across all modules. Pass mark: 18/25</p>' +
         '<button class="btn btn-primary btn-glow" onclick="navigateTo(\'exam\')">Start Exam</button>' +
         '</div>';
@@ -990,7 +992,7 @@ function setActiveTrack(track) {
         '<div class="icon">★</div>' +
         '<span class="mod-status' + (passed ? '' : ' failed-text') + '">' + (passed ? 'Passed' : 'Failed') + '</span>' +
         '</div>' +
-        '<h3>Final Exam</h3>' +
+        '<h3>' + escapeHtml(examLabel) + '</h3>' +
         '<p>Your score: <strong>' + score + '/25</strong> ' + (passed ? '✓' : '✗') + '</p>' +
         (passed ?
           '<button class="btn btn-primary" onclick="showCertificate(\'' + activeTrack + '\')">View Certificate</button>' :
