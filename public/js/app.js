@@ -425,10 +425,37 @@ const defaultState = () => ({
       saveState();
       // Auto-switch to the newly unlocked track
       setActiveTrack('advanced');
-    }
-  }
+}
+}
 
-  function setActiveTrack(track) {
+function updateVersionPathLocks() {
+  const versionPath = document.getElementById('versionPath');
+  if (!versionPath) return;
+  versionPath.querySelectorAll('.version-card').forEach(function (card) {
+    const cardTrack = card.getAttribute('data-track');
+    const isUnlocked = state.unlockedTracks.indexOf(cardTrack) !== -1;
+    const statusEl = card.querySelector('.status');
+    const statusDot = card.querySelector('.status-dot');
+
+    if (isUnlocked) {
+      card.classList.remove('locked');
+      if (statusDot) statusDot.classList.remove('locked');
+      if (statusEl) {
+        statusEl.innerHTML = cardTrack === activeTrack
+          ? '<span class="status-dot"></span> Active'
+          : '<span class="status-dot"></span> Available now';
+      }
+    } else {
+      card.classList.add('locked');
+      if (statusDot) statusDot.classList.add('locked');
+      if (statusEl) {
+        statusEl.innerHTML = '<span class="status-dot locked"></span> Locked';
+      }
+    }
+  });
+}
+
+function setActiveTrack(track) {
     if (!isTrackUnlocked(track)) {
       toast('Complete the previous track to unlock this one.');
       return false;
@@ -953,6 +980,7 @@ const defaultState = () => ({
         return false;
       }
     }
+    updateVersionPathLocks();
     return true;
   }
 
@@ -1149,6 +1177,7 @@ const defaultState = () => ({
     renderSidebar();
     renderDashboardCards();
     updateProgress();
+    updateVersionPathLocks();
     updateContinueBar();
 
     const heroRing = document.getElementById('heroProgressRing');
