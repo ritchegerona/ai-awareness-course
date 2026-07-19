@@ -988,7 +988,7 @@ function setActiveTrack(track) {
         '<div class="dash-card exam-card interactive-card' + (passed ? ' done' : ' failed') + '" style="--i:' + trackModules.length + '">' +
         '<div class="module-card-top">' +
         '<div class="icon">★</div>' +
-        '<span class="mod-status">' + (passed ? 'Passed' : 'Failed') + '</span>' +
+        '<span class="mod-status' + (passed ? '' : ' failed-text') + '">' + (passed ? 'Passed' : 'Failed') + '</span>' +
         '</div>' +
         '<h3>Final Exam</h3>' +
         '<p>Your score: <strong>' + score + '/25</strong> ' + (passed ? '✓' : '✗') + '</p>' +

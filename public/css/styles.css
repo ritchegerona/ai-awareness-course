@@ -1790,6 +1790,12 @@ body.sidebar-open { overflow: hidden; }
   color: var(--danger);
   border-color: #fca5a5;
 }
+.dash-card.module-card .mod-status.failed-text,
+html[data-theme="dark"] .dash-card.module-card .mod-status.failed-text {
+  background: var(--danger-light);
+  color: var(--danger);
+  border-color: #fca5a5;
+}
 html[data-theme="dark"] .dash-card.module-card.failed .mod-status {
   background: rgba(248, 113, 113, 0.15);
   color: var(--danger);
