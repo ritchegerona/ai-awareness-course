@@ -1791,7 +1791,9 @@ body.sidebar-open { overflow: hidden; }
   border-color: #fca5a5;
 }
 .dash-card.module-card .mod-status.failed-text,
-html[data-theme="dark"] .dash-card.module-card .mod-status.failed-text {
+.dash-card.exam-card .mod-status.failed-text,
+html[data-theme="dark"] .dash-card.module-card .mod-status.failed-text,
+html[data-theme="dark"] .dash-card.exam-card .mod-status.failed-text {
   background: var(--danger-light);
   color: var(--danger);
   border-color: #fca5a5;
