@@ -2493,6 +2493,11 @@ html[data-theme="dark"] .page-header .meta-link-dashboard:hover {
   background: var(--text-faint);
   box-shadow: none;
 }
+.version-card .status-dot.completed {
+  background: var(--accent);
+  box-shadow: none;
+  animation: none;
+}
 .version-card.locked .v-tag {
   opacity: 0.7;
 }
