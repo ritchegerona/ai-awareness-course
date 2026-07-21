@@ -184,7 +184,7 @@ The public **Admin progress board** stores data only in the instructor's browser
 
 ## 👤 About the author
 
-Ritche Gerona is an AI automation developer and IT professional based in Pasig City, Philippines. Full bio is in the course under **About the Author** (left panel).
+Ritche Gerona is an AI application developer and IT professional based in Pasig City, Philippines. Full bio is in the course under **About the Author** (left panel).
 
 ---
 
