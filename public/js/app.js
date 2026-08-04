@@ -574,19 +574,21 @@ function setActiveTrack(track) {
     const bar = document.getElementById('continueBar');
     if (!bar) return;
 
-    const last = state.lastModule;
     const trackModules = getCurrentTrackModules();
+    // Find the first module in the current track that is not yet completed
+    const nextUnfinished = trackModules.find(function (m) {
+      return state.completedLessons.indexOf(m.id) === -1;
+    });
 
-    if (last && trackModules.find(function (m) { return m.id === last; })) {
+    if (nextUnfinished) {
       bar.style.display = 'flex';
-      const mod = MODULES.find(function (m) { return m.id === last; });
-      if (mod) {
-        document.getElementById('continueTitle').textContent = 'Continue: Module ' + last;
-        document.getElementById('continueSubtitle').textContent = mod.title;
-      }
+      const mod = nextUnfinished;
+      document.getElementById('continueTitle').textContent = 'Continue: Module ' + mod.id;
+      document.getElementById('continueSubtitle').textContent = mod.title;
       const btn = document.getElementById('continueBtn');
-      if (btn) btn.onclick = function () { navigateTo(last); };
+      if (btn) btn.onclick = function () { navigateTo(mod.id); };
     } else {
+      // No unfinished modules – hide the continue bar
       bar.style.display = 'none';
     }
   }

@@ -111,6 +111,12 @@ flowchart TD
 ---
 
 ## Exam navigation guard
+
+The client‑side guard (`guardExamAccess`) ensures a learner cannot access the exam page unless **all modules in the current track are completed**. This logic is covered by unit tests in `test/app.test.js`.
+
+## Continue button behavior
+
+The **Continue** button now points to the **first unfinished module** in the current track. When all modules are completed the continue bar is hidden. This replaces the previous behavior that used `state.lastModule`. The UI updates dynamically via `updateContinueBar()` in `public/js/app.js`.
 The client‑side guard (`guardExamAccess`) ensures a learner cannot access the exam page unless **all modules in the current track are completed**. The logic lives in `public/js/app.js` and is covered by unit tests in `test/app.test.js`.
 
 ---
