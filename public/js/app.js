@@ -1173,6 +1173,15 @@ function setActiveTrack(track) {
       if (dashEl) dashEl.style.display = 'block';
       if (moduleViews) moduleViews.innerHTML = '';
     } else if (moduleOrPage === 'exam') {
+      // Ensure all modules in the current part are completed before allowing exam access
+      const trackModules = getCurrentTrackModules();
+      const allModsDone = trackModules.every(function (mod) {
+        return state.completedLessons.indexOf(mod.id) !== -1;
+      });
+      if (!allModsDone) {
+        toast('Complete all modules in this Part before taking the Exam.');
+        return;
+      }
       if (dashEl) dashEl.style.display = 'none';
       showExam();
     } else if (moduleOrPage === 'cert') {

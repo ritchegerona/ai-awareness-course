@@ -3,22 +3,40 @@
   "version": "2.0.0",
   "description": "AI Awareness for the Workplace V2.0.0 Advanced by Ritche Gerona",
   "author": "Ritche Gerona",
-  "private": true,
+  "private": false,
   "main": "server.js",
   "scripts": {
+    "test": "jest",
     "start": "node server.js",
     "start:alt": "PORT=3001 node server.js"
   },
   "engines": {
     "node": ">=16"
   },
-  "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^30.4.1",
+    "jsdom": "^22.1.0",
+    "supertest": "^6.3.3"
+  },
   "keywords": [
     "ai",
     "course",
     "education",
     "pwa"
   ],
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "jest": {
+    "projects": [
+      {
+        "displayName": "node",
+        "testMatch": ["<rootDir>/test/server.test.js", "<rootDir>/test/rate.test.js"],
+        "testEnvironment": "node"
+      },
+      {
+        "displayName": "jsdom",
+        "testMatch": ["<rootDir>/test/app.test.js"],
+        "testEnvironment": "jsdom"
+      }
+    ]  }
 }
