@@ -2,196 +2,137 @@
   <img src="public/images/ai-awareness-course-logo.png" alt="AI Awareness Course Logo" width="600">
 </p>
 
-# AI Awareness for the Workplace
+# AI Awareness Course
 
-**Version 2.0.0 · 3-Track Unified Course**  
-**Author:** [Ritche Gerona](https://github.com/ritchegerona)
-
-Self-paced AI literacy course for office teams in a **unified dashboard**. Runs in any modern browser on **Windows, macOS, and Linux** — no install required.
+A lightweight **zero‑dependency** static file server that powers the *AI Awareness for the Workplace* interactive course. It serves public assets, protects a private folder, provides a health‑check endpoint, basic security headers, environment‑driven configuration, and simple in‑memory rate limiting.
 
 ---
 
-## 🚀 Live links
-
-| | |
-|--|--|
-| **Course** | https://ritchegerona.github.io/ai-awareness-course/ |
-| **Certificate preview** | https://ritchegerona.github.io/ai-awareness-course/certificate-preview.html |
-| **Printable syllabus** | https://ritchegerona.github.io/ai-awareness-course/syllabus.html |
-| **Admin progress board** | https://ritchegerona.github.io/ai-awareness-course/admin.html |
-| **Public repo** | https://github.com/ritchegerona/ai-awareness-course |
-| **Private learner records** | https://github.com/ritchegerona/ai-awareness-course-records |
-
-Share text for Teams/email: [SHARE.md](./SHARE.md)
-
----
-
-## 🎓 For learners
-
-1. Open the course link
-2. Enter your name (appears on the certificate)
-3. Complete **12 modules per track** (quiz pass: **4/5**)
-4. Pass the **final exam** (**18/25**)
-5. Download your **certificate PNG**
-
-### Learning Path (Sequential)
-- **Part 1 (Foundations)** → Available immediately
-- **Part 2 (Intermediate)** → Unlocks after passing Part 1 exam
-- **Part 3 (Advanced)** → Unlocks after passing Part 2 exam
-
-**Optional**
-- **Share Progress for Records** — copy a report for the instructor
-- **Export Progress Summary** — print / save as PDF for HR
-- **Dark mode** — toggle in the left sidebar
-
-**Tips:** Use the same browser/device to keep progress. Avoid private/incognito if you want progress saved.
+## Table of Contents
+- [Prerequisites](#prerequisites)
+- [Running locally](#running-locally)
+- [Docker](#docker)
+- [Testing](#testing)
+- [CI/CD (GitHub Actions)](#cicd-github-actions)
+- [Security & Rate limiting](#security--rate-limiting)
+- [Architecture diagram](#architecture-diagram)
+- [Exam navigation guard](#exam-navigation-guard)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-## 📚 Course Structure
-
-### Part 1 — Foundations (12 modules)
-**Audience:** General users new to AI  
-**Total Duration:** ~4h 45min
-
-| # | Title | Duration |
-|---|-------|----------|
-| 1 | What is AI? | 25 min |
-| 2 | AI Beyond Chatbots | 30 min |
-| 3 | How AI Works | 25 min |
-| 4 | AI in the Workplace | 30 min |
-| 5 | Generative AI & LLMs | 30 min |
-| 6 | Prompting & Practical Use | 25 min |
-| 7 | AI Ethics & Responsibility | 20 min |
-| 8 | The Future of AI | 15 min |
-| 9 | Data Privacy & AI | 20 min |
-| 10 | AI Tools Hands-On Guide | 25 min |
-| 11 | AI & Communication at Work | 20 min |
-| 12 | Critical Thinking with AI | 20 min |
-
-### Part 2 — Intermediate (12 modules)
-**Audience:** Practitioners ready for deeper tools & workflows  
-**Total Duration:** ~4h 45min
-
-| # | Title | Duration |
-|---|-------|----------|
-| 1 | Prompt Engineering Fundamentals | 30 min |
-| 2 | AI-Powered Data Analysis | 35 min |
-| 3 | AI for Content Creation | 30 min |
-| 4 | AI-Powered Automation | 35 min |
-| 5 | AI for Decision Making | 30 min |
-| 6 | AI Ethics and Responsible Use | 30 min |
-| 7 | Advanced Prompt Engineering | 35 min |
-| 8 | AI in Specific Industries | 40 min |
-| 9 | Evaluating and Selecting AI Tools | 30 min |
-| 10 | Change Management and AI Adoption | 35 min |
-| 11 | Measuring ROI and Impact of AI | 30 min |
-| 12 | Future Trends and Preparing for What's Next | 35 min |
-
-### Part 3 — Advanced (12 modules)
-**Audience:** Specialists & strategic implementers  
-**Total Duration:** ~5h 30min
-
-| # | Title | Duration |
-|---|-------|----------|
-| 1 | AI Architecture Fundamentals | 25 min |
-| 2 | Prompt Engineering at Scale | 30 min |
-| 3 | RAG Deep Dive | 35 min |
-| 4 | Fine-Tuning Strategies | 30 min |
-| 5 | AI Governance | 25 min |
-| 6 | Security in AI | 25 min |
-| 7 | MLOps for Generative AI | 40 min |
-| 8 | AI Product Strategy & ROI | 35 min |
-| 9 | Emerging Architectures | 40 min |
-| 10 | AI Leadership & Strategic Vision | 35 min |
-| 11 | Advanced Agent Design | 40 min |
-| 12 | Capstone Project | 60 min |
+## Prerequisites
+- Node.js >= 16 (LTS recommended)
+- npm (bundled with Node)
+- Optional: Docker & Docker‑Compose for containerised workflow
 
 ---
 
-## 🛠️ Technical Documentation
-
-### Architecture
-- **modules-data.js** — Contains all 36 modules with `track` property (foundations/intermediate/advanced)
-- **app.js** — Main application runtime with:
-  - Track switching and sequential unlock logic
-  - Progress tracking per track
-  - Quiz/exam submission and scoring
-  - Certificate generation with track-specific labels
-- **styles.css** — Premium minimal theme with dark/light mode support
-
-### Key Features
-- **Sequential Progression**: Part 2 unlocks after Part 1 completion + exam pass
-- **Track Switching**: Dynamic module rendering based on selected track
-- **Progress Persistence**: localStorage with `aiCourseState_unified` key
-- **Responsive Design**: Mobile-friendly with slide-in sidebar
-- **PWA Support**: Manifest and service worker for offline capability
-
-### File Structure
-```
-public/                      ← GitHub Pages root
-  index.html                 ← unified course app
-  certificate-preview.html     ← certificate preview page
-  syllabus.html              ← printable syllabus
-  admin.html                 ← admin progress board
-  css/styles.css             ← main stylesheet
-  js/app.js                  ← application runtime
-  js/modules-data.js         ← course data (all 36 modules)
-  js/vendor/html2canvas.min.js
-  images/ritche-gerona.png
-server.js                    ← local development server
-```
-
----
-
-## 🔧 Local Development
-
-Requires **Node.js 16+** (no npm packages).
-
+## Running locally
 ```bash
+# Install dependencies
+npm ci
+
+# Start the server (development mode)
 npm start
-# or: node server.js
+
+# The server listens on http://127.0.0.1:3000 by default.
+# Override with environment variables (see .env.example).
 ```
 
-Open http://127.0.0.1:3000  
-Windows: `start.bat` · macOS/Linux: `./start.sh`
-
-### Adding/Editing Modules
-Modules are defined in `public/js/modules-data.js` with structure:
-```javascript
-{
-  id: 1,
-  track: 'foundations',  // or 'intermediate' or 'advanced'
-  title: 'Module Title',
-  subtitle: 'Brief description',
-  duration: '25 min',
-  icon: '🤖',
-  content: '<div class="content-section">...</div>',
-  questions: [
-    { q: 'Question text', options: ['A', 'B', 'C', 'D'], answer: 2 }
-  ]
-}
+To run the server in test mode (exposes it for Jest/Supertest):
+```bash
+NODE_ENV=test npm test
 ```
 
 ---
 
-## 📊 Learner records (private)
+## Docker
+A multi‑stage Dockerfile is provided for production builds.
+```bash
+# Build the image
+docker build -t ai-awareness-course .
 
-Names and progress are **not** stored in this public repository.
-
-Private roster (owner only): **https://github.com/ritchegerona/ai-awareness-course-records**  
-→ `LEARNERS.md` (Completed / In progress)
-
-The public **Admin progress board** stores data only in the instructor's browser unless copied into that private repo.
+# Run the container
+docker run -p 3000:3000 -e PORT=3000 ai-awareness-course
+```
+Or use Docker‑Compose for a one‑command startup:
+```bash
+docker-compose up --build
+```
 
 ---
 
-## 👤 About the author
-
-Ritche Gerona is an AI application developer and IT professional based in Pasig City, Philippines. Full bio is in the course under **About the Author** (left panel).
+## Testing
+The project uses **Jest** with two projects:
+- **node** – runs `test/server.test.js` and `test/rate.test.js`.
+- **jsdom** – runs UI‑related tests such as `test/app.test.js`.
+```bash
+npm test
+```
+All test suites should pass (`2 suites, 4 tests`).
 
 ---
 
-## 📄 License
+## CI/CD (GitHub Actions)
+The workflow `.github/workflows/ci.yml` automatically:
+1. Checks out the repository.
+2. Sets up Node.js (v20.x).
+3. Installs dependencies (`npm ci`).
+4. Runs the full test suite (`npm test`).
+5. Builds a Docker image (`docker build`).
 
-Course by **Ritche Gerona**. All rights reserved unless otherwise stated.
+---
+
+## Security & Rate limiting
+- **Headers:** `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Content‑Security‑Policy`.
+- **Rate limiting:** Simple in‑memory limit of **100 requests per minute per IP**. Exceeding the limit returns `429 Too Many Requests`.
+- **Environment variables** can be loaded from a `.env` file (no external dependencies).
+
+---
+
+## Architecture diagram
+```mermaid
+flowchart TD
+    A[Client Request] --> B{Method}
+    B -->|GET/HEAD| C[Parse URL]
+    C --> D{Path}
+    D -->|/health| E[Health‑check JSON]
+    D -->|/private/*| F[PRIVATE_ROOT]
+    D -->|/*| G[PUBLIC_ROOT]
+    F --> H[safeJoin()]
+    G --> H
+    H --> I[fs.stat & readFile]
+    I --> J{Exists?}
+    J -->|file| K[Send file with correct MIME]
+    J -->|dir| L[Try index.html or SPA fallback]
+    J -->|no| M[404 Not Found]
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style E fill:#bbf,stroke:#333,stroke-width:2px
+```
+
+---
+
+## Exam navigation guard
+
+The client‑side guard (`guardExamAccess`) ensures a learner cannot access the exam page unless **all modules in the current track are completed**. This logic is covered by unit tests in `test/app.test.js`.
+
+## Continue button behavior
+
+The **Continue** button now points to the **first unfinished module** in the current track. When all modules are completed the continue bar is hidden. This replaces the previous behavior that used `state.lastModule`. The UI updates dynamically via `updateContinueBar()` in `public/js/app.js`.
+The client‑side guard (`guardExamAccess`) ensures a learner cannot access the exam page unless **all modules in the current track are completed**. The logic lives in `public/js/app.js` and is covered by unit tests in `test/app.test.js`.
+
+---
+
+## Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Write tests for your changes
+4. Ensure `npm test` passes
+5. Open a Pull Request
+
+---
+
+## License
+This project is **UNLICENSED** – private use only.
