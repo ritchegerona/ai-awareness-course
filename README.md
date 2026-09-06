@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/images/ai-awareness-course-logo.png" alt="AI Awareness Course Logo" width="600">
+</p>
+
 # AI Awareness for the Workplace
 
 **Version 2.0.0 · 3-Track Unified Course**  
