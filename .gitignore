@@ -1,7 +1,7 @@
 # Qwen agent cache
 .qwen/
 
-# macOS
+# macOS / editors
 .DS_Store
 *.swp
 *.swo
@@ -17,6 +17,10 @@ _body.html
 # Node
 node_modules/
 npm-debug.log*
-.DS_Storeprivate/admin.html
-private/admin.html
-private/admin.html
+
+# Logs
+*.log
+server.log
+
+# Private content
+private/
